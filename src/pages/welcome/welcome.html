@@ -1,0 +1,21 @@
+<ion-content padding>
+  <ion-title id="welcome-title">Welcome To Speed Snap!</ion-title>
+  <p text-center>There's a few things you need to fill in before you get started.</p>
+  <ion-label text-center>Please Enter Your Name & Company Info</ion-label>
+  <form #dataInputForm="ngForm" (ngSubmit)="process(dataInputForm)" id="welcome-form">
+    <ion-input text-center placeholder="Your Name" name="nameInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="Company Name" name="companyNameInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="Address" name="addressInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="City" name="cityInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-item no-lines>
+      <ion-select [selectOptions]="{title: 'Company Province'}" class="welcome-field-input" text-center placeholder="Province" [(ngModel)]="selectedProvince" [ngModelOptions]="{standalone: true}">
+        <ion-option *ngFor="let province of provinces" value="{{province.abbrev}}">{{province.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-input text-center placeholder="Postal Code" name="postalInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="Phone Number" name="phoneInput" class="welcome-field-input" ngModel></ion-input>
+    <br><br>
+    <button block ion-button clear type="submit">Start Snapping!</button>
+  </form>
+  <p text-center class="welcome-footer">This information is for in-app purposes only. We do not collect your personal information.</p>
+</ion-content>

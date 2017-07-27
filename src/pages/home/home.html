@@ -1,14 +1,76 @@
 <ion-header>
-  <ion-navbar>
+  <ion-navbar color="navbar">
     <ion-title>
-      Ionic Blank
+      Speed Snap
     </ion-title>
+    <ion-buttons left>
+      <button ion-button (click)="openSettings()">
+        <ion-icon name="settings"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-buttons right>
+      <button ion-button *ngIf="showDataForm" (click)="restart()">New PDF</button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+  <form id="form1" *ngIf="!showDataForm" #surveyInfoForm="ngForm" class="survey-info-form" (ngSubmit)="initializeSurveyData(surveyInfoForm)">
+    <ion-input type="text" name="clientInput" placeholder="Client/Customer Name" ngModel></ion-input>
+    <ion-input type="text" name="surveyTypeInput" placeholder="Survey Type" ngModel></ion-input>
+    <ion-input type="text" name="locationInput" placeholder="Location" ngModel></ion-input>
+    <button type="submit" block ion-button>Submit</button>
+  </form>
+  <form *ngIf="showDataForm" #measurementsForm="ngForm" (ngSubmit)="process(measurementsForm)">
+  <ion-title text-left>Items In Log: {{counter}}</ion-title>
+    <div class="image-select-div">
+      <button type="button" outline ion-button *ngIf="!image" (click)="takePicture()">Add Photo</button>
+      <img *ngIf="image" class="image-input" src="{{image}}" alt="img">
+      <button type="button" ion-button *ngIf="image" (click)="takePicture()">Undo</button>
+    </div>
+    <div class="data-info-fields">
+      <ion-grid>
+        <ion-row>
+          <ion-col col-3>
+            <ion-input type="number" name="heightInput" placeholder="Height" id="height-input-field" ngModel></ion-input>
+          </ion-col>
+          <ion-col col-9>
+            <ion-select style="max-width: 55% !important" [(ngModel)]="heightUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Height Units', subTitle: 'Select the height units'}">
+              <ion-option [selected]="heightUnits == 'm'" value="m">Metres (m)</ion-option>
+              <ion-option [selected]="heightUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
+              <ion-option [selected]="heightUnits == 'ft'" value="ft">Feet (ft)</ion-option>
+              <ion-option [selected]="heightUnits == 'in'" value="in">Inches (in)</ion-option>
+            </ion-select>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-3>
+            <ion-input type="number" name="widthInput" placeholder="Width" id="width-input-field" ngModel></ion-input>
+          </ion-col>
+          <ion-col col-9>
+            <ion-select style="max-width: 55% !important" [(ngModel)]="widthUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Width Units', subTitle: 'Select the width units'}">
+              <ion-option [selected]="widthUnits == 'm'" value="m">Metres (m)</ion-option>
+              <ion-option [selected]="widthUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
+              <ion-option [selected]="widthUnits == 'ft'" value="ft">Feet (ft)</ion-option>
+              <ion-option [selected]="widthUnits == 'in'" value="in">Inches (in)</ion-option>
+            </ion-select>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input type="number" name="qtyInput" placeholder="Qty." id="qty-input-field" ngModel></ion-input>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input type="text" name="signTypeInput" placeholder="Sign Type" id="sign-type-input-field" ngModel></ion-input>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <button ion-button outline type="button" (click)="addNote()"><ion-icon name="create" padding-right></ion-icon>Add Note</button>
+    </div>
+    <button ion-button block type="submit">Add To Session Log</button>
+    <button ion-button block type="button" (click)="goToReviewPage()">Review Your Photos<ion-icon padding-left name="arrow-round-forward"></ion-icon></button>
+  </form>
+  <div style="width: 100%; height: 50px;"></div>
 </ion-content>

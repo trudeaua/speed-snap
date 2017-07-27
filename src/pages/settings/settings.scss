@@ -1,0 +1,20 @@
+.settings-input-box {
+    position: absolute;
+    left: 0px;
+}
+
+.settings-input-container {
+    position: relative;
+}
+
+.settings-save-btn {
+    position: absolute;
+    right: 0px;
+}
+
+#unit-settings > div {
+    border-bottom: 2px map-get($colors, secondary) solid; 
+}
+#province-settings > div {
+    border-bottom: 2px map-get($colors, secondary) solid; 
+}
