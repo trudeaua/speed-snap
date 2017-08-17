@@ -15,20 +15,55 @@
 </ion-header>
 
 <ion-content padding>
-  <form id="form1" *ngIf="!showDataForm" #surveyInfoForm="ngForm" class="survey-info-form" (ngSubmit)="initializeSurveyData(surveyInfoForm)">
-    <ion-input type="text" name="clientInput" placeholder="Client/Customer Name" ngModel></ion-input>
-    <ion-input type="text" name="surveyTypeInput" placeholder="Survey Type" ngModel></ion-input>
-    <ion-input type="text" name="locationInput" placeholder="Location" ngModel></ion-input>
-    <button type="submit" block ion-button>Submit</button>
-  </form>
+
+  <ion-grid *ngIf="!pickedContact && !showDataForm">
+    <ion-row>
+      <ion-col text-center>
+        <button ion-button large clear (click)="chooseContact()">Choose Contact</button>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>or</ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col text-center>
+        <button ion-button large clear (click)="createContact()">Create Contact</button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div *ngIf="pickedContact && !showDataForm">
+    <ion-item text-wrap *ngIf="client.name">
+      <ion-label>Name: {{client.name}}</ion-label>
+    </ion-item>
+    <ion-item text-wrap *ngIf="client.companyName">
+      <ion-label>Company Name: {{client.companyName}}</ion-label>
+    </ion-item>
+    <ion-item text-wrap *ngIf="client.address">
+      <ion-label>Address: {{client.address}}</ion-label>
+    </ion-item>
+    <ion-item text-wrap *ngIf="client.telephone">
+      <ion-label>Telephone: {{client.telephone}}</ion-label>
+    </ion-item>
+    <ion-item text-wrap *ngIf="client.email">
+      <ion-label>Email: {{client.email}}</ion-label>
+    </ion-item>
+
+    <button block ion-button (click)="submitClient()">Submit Client Info</button>
+    <br><br>
+    <button ion-button block small clear (click)="undoChooseContact()"><span style="text-decoration: underline">Undo</span></button>
+  </div>
+
+
   <form *ngIf="showDataForm" #measurementsForm="ngForm" (ngSubmit)="process(measurementsForm)">
-  <ion-title text-left>Items In Log: {{counter}}</ion-title>
+    <ion-title text-left>Items In Log: {{counter}}</ion-title>
     <div class="image-select-div">
       <button type="button" outline ion-button *ngIf="!image" (click)="takePicture()">Add Photo</button>
       <img *ngIf="image" class="image-input" src="{{image}}" alt="img">
       <button type="button" ion-button *ngIf="image" (click)="takePicture()">Undo</button>
     </div>
     <div class="data-info-fields">
+      <button ion-button outline type="button" (click)="addNote()"><ion-icon name="create" padding-right></ion-icon>Add Note</button>
       <ion-grid>
         <ion-row>
           <ion-col col-3>
@@ -67,7 +102,6 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <button ion-button outline type="button" (click)="addNote()"><ion-icon name="create" padding-right></ion-icon>Add Note</button>
     </div>
     <button ion-button block type="submit">Add To Session Log</button>
     <button ion-button block type="button" (click)="goToReviewPage()">Review Your Photos<ion-icon padding-left name="arrow-round-forward"></ion-icon></button>

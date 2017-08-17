@@ -23,7 +23,7 @@ export class WelcomePage {
    * @param form form containing data to be processed
    */
   process(form: NgForm) {
-    if (form.value.nameInput && form.value.companyNameInput && form.value.addressInput && form.value.cityInput && form.value.postalInput && this.selectedProvince && form.value.phoneInput) {
+    if (form.value.nameInput && form.value.companyNameInput && form.value.addressInput && form.value.cityInput && form.value.postalInput && this.selectedProvince) {
       console.log(form.value.nameInput);
       let settings = {
         address: form.value.addressInput,
@@ -31,11 +31,13 @@ export class WelcomePage {
         city: form.value.cityInput,
         postalCode: form.value.postalInput,
         province: this.selectedProvince,
-        telephone: form.value.phoneInput,
+        telephone: form.value.phoneInput ? form.value.phoneInput : null,
+        email: form.value.emailInput ? form.value.emailInput : null,
         name: form.value.nameInput,
         defaultUnits: 'm'
       };
       this.storage.set('settings', settings);
+      this.storage.set('welcomeScreenPresented', true);
       this.viewCtrl.dismiss().then(() => console.log('view dismissed')).catch(err => console.error(err));
       console.log('submitted!');
     }

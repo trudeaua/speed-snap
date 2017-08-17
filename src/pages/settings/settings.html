@@ -28,15 +28,19 @@
     </ion-item>
     <ion-item>
       <ion-label>Company Name</ion-label>
-      <ion-input text-right name="companyNameInput" placeholder="Company Name" value="{{currentCompanyName}}" ngModel></ion-input>
+      <ion-input text-right type="text" name="companyNameInput" placeholder="Company Name" value="{{currentCompanyName}}" ngModel></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Address</ion-label>
-      <ion-input text-right name="addressInput" placeholder="Address" value="{{currentAddress}}" ngModel></ion-input>
+      <ion-input text-right type="text" name="addressInput" placeholder="Address" value="{{currentAddress}}" ngModel></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>City</ion-label>
-      <ion-input text-right name="cityInput" placeholder="City" value="{{currentCity}}" ngModel></ion-input>
+      <ion-input text-right type="text" name="cityInput" placeholder="City" value="{{currentCity}}" ngModel></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Email</ion-label>
+      <ion-input text-right type="email" name="emailInput" placeholder="Email" value="{{currentEmail}}" ngModel></ion-input>
     </ion-item>
     <ion-item id="province-settings">
       <ion-label>Province</ion-label>
@@ -47,11 +51,11 @@
     </ion-item>
     <ion-item>
       <ion-label>Postal Code</ion-label>
-      <ion-input text-right name="postalInput" placeholder="Postal Code" value="{{currentPostalCode}}" ngModel></ion-input>
+      <ion-input text-right type="text" name="postalInput" placeholder="Postal Code" value="{{currentPostalCode}}" ngModel></ion-input>
     </ion-item>
     <ion-item>
       <ion-label>Telephone</ion-label>
-      <ion-input text-right name="phoneInput" placeholder="Telephone" value="{{currentTelephone}}" type="tel" ngModel></ion-input>
+      <ion-input text-right type="number" name="phoneInput" placeholder="Telephone" value="{{currentTelephone}}" type="tel" ngModel></ion-input>
     </ion-item>
     <button ion-button type="submit" block>Save Changes</button>
   </form>

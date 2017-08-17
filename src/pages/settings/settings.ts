@@ -12,6 +12,7 @@ export class SettingsPage {
   currentCity: string;
   currentCompanyName: string;
   currentAddress: string;
+  currentEmail: string;
   settings: any;
   provinces: { abbrev: string; name: string; }[];
   currentName: string;
@@ -27,6 +28,7 @@ export class SettingsPage {
       this.currentAddress = settings.address;
       this.currentCompanyName = settings.companyName;
       this.currentCity = settings.city;
+      this.currentEmail = settings.email;
       this.currentPostalCode = settings.postalCode;
       this.currentTelephone = settings.telephone;
       this.currentProvince = settings.province;
@@ -46,6 +48,7 @@ export class SettingsPage {
       this.settings.name = form.value.userNameInput;
       this.settings.companyName = form.value.companyNameInput;
       this.settings.city = form.value.cityInput;
+      this.settings.email = form.value.emailInput;
       this.settings.address = form.value.addressInput;
       this.settings.telephone = form.value.phoneInput;
       this.settings.postalCode = form.value.postalInput;

@@ -1,0 +1,41 @@
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>New Contact</ion-title>
+    <ion-buttons left>
+      <button ion-button (click)="closeModal()">Cancel</button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <form #newContactForm="ngForm" (ngSubmit)="createContact(newContactForm)">
+    <ion-label>First Name&nbsp;<span style="color: red">*</span></ion-label>
+    <ion-item>
+      <ion-input placeholder="First Name" type="text" name="firstName" ngModel></ion-input>
+    </ion-item>
+    <ion-label>Last Name&nbsp;<span style="color: red">*</span></ion-label>
+    <ion-item>
+      <ion-input placeholder="Last Name" type="text" name="lastName" ngModel></ion-input>
+    </ion-item>
+    <ion-label>Address&nbsp;<span style="color: red">*</span></ion-label>
+    <ion-item>
+      <ion-input placeholder="Address" type="text" name="address" ngModel></ion-input>
+    </ion-item>
+    <ion-label>Company Name</ion-label>
+    <ion-item>
+      <ion-input placeholder="Company Name" type="text" name="companyName" ngModel></ion-input>
+    </ion-item>
+    <ion-label>Phone Number</ion-label>
+    <ion-item>
+      <ion-input placeholder="Phone Number" type="number" name="phoneNumber" ngModel></ion-input>
+    </ion-item>
+    <ion-label>Email</ion-label>
+    <ion-item>
+      <ion-input placeholder="Email" type="email" name="email" ngModel></ion-input>
+    </ion-item>
+    <button type="submit" block ion-button>Add To Contacts</button>
+  </form>
+</ion-content>

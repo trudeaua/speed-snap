@@ -10,7 +10,7 @@ declare var cordova: any;
     templateUrl: 'review.html',
 })
 export class ReviewPage {
-    client: string;
+    client: any;
     editingIndex: number;
     enableExportBtn: boolean = false;
     location: string;
@@ -100,31 +100,33 @@ export class ReviewPage {
     toPdf() {
         let pdfItems = '';
         for (let i = 0; i < this.surveyItems.length; i++) {
-            pdfItems += `<table class="session-item nobreak">
+            pdfItems += `<table style="width: 100%" class="nobreak">
             <tr>
-                <td class="picture-cell">
-                    <img src="` + this.surveyItems[i].image + `" alt="img">
+                <td style="width: 15%" class="session-item-td">` + (i + 1) + `</td>
+                <td style="width: 50%" class="session-item-td">
+                    <img style="width: 100%" src="` + this.surveyItems[i].image + `" alt="img">
                 </td>
-                <td>
-                    Sign Type: ` + this.surveyItems[i].signType + `
-                    <table class="item-table">
-                        <tr>
-                            <td>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</td>
-                            <td>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</td>
-                            <td>Quantity: `+ this.surveyItems[i].quantity + `</td>
-                        </tr>
-                        <tr>
-                            <td>Area: ` + this.surveyItems[i].area + `</td>
-                        </tr>
-                    </table><br>
-                    Notes:
-                    ` + this.surveyItems[i].htmlNotes + `
+                <td style="width:35%" class="session-item-td">
+                    ` + this.surveyItems[i].signType + `
+                    <p>Notes: ` + this.surveyItems[i].htmlNotes + `</p>
+                    <p>Dimensions:<br>
+                        <ul>
+                            <li>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</li>
+                            <li>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</li>
+                            <li>Quantity: `+ this.surveyItems[i].quantity + `</li>
+                        </ul>
+                    </p>
                 </td>
             </tr>
         </table>`
         }
 
         let date = new Date;
+        let contactInfo = "";
+        this.client.companyName ? contactInfo += "<li>"+ this.client.companyName + "</li>" : null;
+        this.client.address ? contactInfo += "<li>"+ this.client.address + "</li>" : null;
+        this.client.telephone ? contactInfo += "<li>"+ this.client.telephone + "</li>" : null;
+        this.client.email ? contactInfo += "<li>"+ this.client.email + "</li>" : null;
         let d = date.toDateString().slice(date.toDateString().indexOf(' '));
         cordova.plugins.pdf.htmlToPDF({
             data: `<!DOCTYPE html>
@@ -133,138 +135,90 @@ export class ReviewPage {
 <head>
     <style>
         body {
-            font-family: 'Trebuchet MS', sans-serif;
+            font-family: 'Arial', 'sans-serif';
             position: relative;
             margin-left: 90px;
             margin-right: 90px;
         }
+
         .nobreak {
             page-break-inside: avoid;
         }
+
         #page-header {
             width: 100%;
         }
 
-        #left-page-header {
-            width: 40%;
-            position: absolute;
-            left: 0px;
-        }
-
-        #left-page-header>img {
-            width: 80%;
-        }
-
-        #contact-text {
-            position: absolute;
-            top: 46px;
-            left: 0px;
-            line-height: 1px;
-        }
-
-        #survey-by {
-            position: absolute;
-            top: 150px;
-            left: 10px;
-        }
-
-        #right-page-header {
-            width: 60%;
-            position: absolute;
-            right: 0px;
-        }
-
-        #survey-type {
-            text-align: right;
-        }
-
-        #survey-info-table {
-            position: absolute;
-            left: 90px;
-        }
-
-        #survey-info-table>table {
-            border-spacing: 16px;
-        }
-
-        #survey-info-table>td,
-        #survey-info-table>th {
-            white-space: nowrap;
-            font-size: 16px;
-            padding-right: 10em;
-        }
-
-        #mid-border {
-            border-bottom: 1px solid black;
-            width: 100%;
-            position: absolute;
-            top: 265px;
+        .page-header-table {
+            font-size: 12px !important;
         }
 
         #main-content {
             position: absolute;
             width: 100%;
-            top: 275px;
+            top: 350px;
         }
 
-        .picture-cell {
-            width: 40%;
-        }
-
-        .picture-cell>img {
-            width: 100%;
-        }
-
-        .item-table {
-            border-spacing: 12px;
-        }
-
-        .item-table > tr > th, .item-table > tr > td {
-          vertical-align: top;
-        }
-
-        .session-item {
+        .session-item-td {
             border: 1px solid black;
+            vertical-align: top;
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+
+        #contact-info-container {
+            list-style-type: none;
+            font-size: 12px;
+            text-align: left;
+            vertical-align: top;
+            padding-left: 91px;
         }
     </style>
 </head>
 
 <body>
-    <div id="page-header">
-        <div id="left-page-header">
-            <img src="http://chambermaster.blob.core.windows.net/images/customers/1114/members/19774/logos/MEMBER_PAGE_HEADER/SPEEDPRO_LOGO_2.jpg" alt="img">
-            <div id="contact-text">
-                <p>`+ this.settings.companyName + `</p>
-                <p>`+ this.settings.address + `</p>
-                <p>`+ this.settings.city + ' ,' + this.settings.province + ' ' + this.settings.postalCode + `</p>
-                <p>T `+ this.settings.telephone + `</p>
-            </div>
-            <div id="survey-by">
-                <p>Survey Completed By:</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`+ this.settings.name + `</p>
-            </div>
-        </div>
-        <div id="right-page-header">
-            <h3 id="survey-type">`+ this.surveyType + `</h3>
-            <div id="survey-info-table">
-                <table>
-                    <tr>
-                        <td>Date Requested:</td>
-                        <td>Date Completed:</td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` + d + `</td>
-                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` + d + `</td>
-                    </tr>
-                </table>
-                <div id="survey-location-box">
-                    <p>Customer Location:</p>
-                    <p>`+ this.client + ',<br>' + this.location + `</p>
-                </div>
-            </div>
-        </div>
-        <div id="mid-border"></div>
-    </div>
+    <table style="width: 100%">
+        <tr>
+            <td style="vertical-align:top; width: 60%; text-align: left">
+                <img style="width:80%;" src="https://www.speedprocanada.com/images/default-source/default-album/new-speedpro-imaging.jpg?sfvrsn=4" alt="logo">
+                <ul id="contact-info-container">
+                    <li>`+ this.settings.companyName + `</li>
+                    <li>`+ this.settings.address + `</li>
+                    <li>T `+ this.settings.telephone + `</li>
+                    <li>E ` + this.settings.email + `</li>
+                </ul>
+            </td>
+            <td style="vertical-align:top; width: 40%; text-align: right">
+                <h2>Site Survey</h2>
+            </td>
+        </tr>
+    </table><br>
+    <table id="page-header" class="page-header-table">
+        <tr>
+            <td style="vertical-align:top">Client:</td>
+            <td style="vertical-align:top">` + this.client.name + `</td>
+            <td style="vertical-align:top"></td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">Location:</td>
+            <td style="vertical-align: top">
+                <ul style="display: inline;list-style-type: none;">
+                    <li>`+ this.client.companyName +`</li>
+                    <li>`+ this.client.address +`</li>
+                    <li>T `+ this.client.telephone +`</li>
+                    <li>E `+ this.client.email +`</li>
+                </ul>
+            </td>
+            <td style="vertical-align:bottom">Inspected By:</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">Date Visited</td>
+            <td style="vertical-align:top">` + d + `</td>
+            <td style="vertical-align:top">`+ this.settings.name + `</td>
+        </tr>
+    </table>
     <div id="main-content">
         ` + pdfItems + `
     </div>

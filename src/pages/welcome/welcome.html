@@ -7,13 +7,14 @@
     <ion-input text-center placeholder="Company Name" name="companyNameInput" class="welcome-field-input" ngModel></ion-input>
     <ion-input text-center placeholder="Address" name="addressInput" class="welcome-field-input" ngModel></ion-input>
     <ion-input text-center placeholder="City" name="cityInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="Email (Optional)" name="emailInput" class="welcome-field-input" ngModel></ion-input>
     <ion-item no-lines>
       <ion-select [selectOptions]="{title: 'Company Province'}" class="welcome-field-input" text-center placeholder="Province" [(ngModel)]="selectedProvince" [ngModelOptions]="{standalone: true}">
         <ion-option *ngFor="let province of provinces" value="{{province.abbrev}}">{{province.name}}</ion-option>
       </ion-select>
     </ion-item>
     <ion-input text-center placeholder="Postal Code" name="postalInput" class="welcome-field-input" ngModel></ion-input>
-    <ion-input text-center placeholder="Phone Number" name="phoneInput" class="welcome-field-input" ngModel></ion-input>
+    <ion-input text-center placeholder="Phone Number (Optional)" name="phoneInput" class="welcome-field-input" ngModel></ion-input>
     <br><br>
     <button block ion-button clear type="submit">Start Snapping!</button>
   </form>

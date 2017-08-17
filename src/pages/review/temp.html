@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            font-family: 'Arial', 'sans-serif';
+            position: relative;
+            margin-left: 90px;
+            margin-right: 90px;
+        }
+
+        .nobreak {
+            page-break-inside: avoid;
+        }
+
+        #page-header {
+            width: 100%;
+        }
+
+        .page-header-table {
+            font-size: 12px !important;
+        }
+
+        #main-content {
+            position: absolute;
+            width: 100%;
+            top: 350px;
+        }
+
+        .session-item-td {
+            border: 1px solid black;
+            vertical-align: top;
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+
+        #contact-info-container {
+            list-style-type: none;
+            font-size: 12px;
+            text-align: left;
+            vertical-align: top;
+            padding-left: 91px;
+            margin-top: -20px;
+        }
+    </style>
+</head>
+
+<body>
+    <table style="width: 100%">
+        <tr>
+            <td style="vertical-align:top; width: 60%; text-align: left">
+                <img style="width:80%;" src="../../assets/imgs/speedpro-logo.png" alt="logo">
+                <ul id="contact-info-container">
+                    <li>`+ this.settings.companyName + `</li>
+                    <li>`+ this.settings.address + `</li>
+                    <li>T `+ this.settings.telephone + `</li>
+                    <li>E ` + this.settings.email + `</li>
+                </ul>
+            </td>
+            <td style="vertical-align:top; width: 40%; text-align: right">
+                <h2>Site Survey</h2>
+            </td>
+        </tr>
+    </table><br>
+    <table id="page-header" class="page-header-table">
+        <tr>
+            <td style="vertical-align:top">Client:</td>
+            <td style="vertical-align:top">SOME_CLIENT</td>
+            <td style="vertical-align:top">Clinic ID: SOME_ID</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">Location:</td>
+            <td style="vertical-align:top">
+                <ul style="display: inline;list-style-type: none;">
+                    <li>`+ this.client.companyName +`</li>
+                    <li>`+ this.client.address +`</li>
+                    <li>`+ this.client.city +`</li>
+                    <li>T: `+ this.client.phone +`</li>
+                    <li>E: `+ this.client.email +`</li>
+                </ul>
+            </td>
+            <td style="vertical-align:bottom">Inspected By:</td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">Date Visited</td>
+            <td style="vertical-align:top">` + d + `</td>
+            <td style="vertical-align:top">`+ this.settings.name + `</td>
+        </tr>
+    </table>
+    <div id="main-content">
+
+        <table style="width: 100%" class="nobreak">
+            <tr>
+                <td style="width: 15%" class="session-item-td">` + (i + 1) + `</td>
+                <td style="width: 50%" class="session-item-td">
+                    <img style="width: 100%" src="` + this.surveyItems[i].image + `" alt="img">
+                </td>
+                <td style="width:35%" class="session-item-td">
+                    ` + this.surveyItems[i].signType + `
+                    <p>Notes: ` + this.surveyItems[i].htmlNotes + `</p>
+                    <p>Dimensions:<br>
+                        <ul>
+                            <li>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</li>
+                            <li>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</li>
+                            <li>Quantity: `+ this.surveyItems[i].quantity + `</li>
+                        </ul>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
