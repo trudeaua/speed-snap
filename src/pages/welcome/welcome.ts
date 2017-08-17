@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, Events } from 'ionic-angular';
+import { NavController, NavParams, ViewController } from 'ionic-angular';
 import { NgForm } from "@angular/forms/src/forms";
 import { Storage } from "@ionic/storage";
 
@@ -10,13 +10,8 @@ import { Storage } from "@ionic/storage";
 export class WelcomePage {
   provinces: any[];
   selectedProvince: string;
-  constructor(private storage: Storage, private events: Events, private viewCtrl: ViewController, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(private storage: Storage, private viewCtrl: ViewController, public navCtrl: NavController, public navParams: NavParams) {
     this.provinces = [{ abbrev: "AB", name: "Alberta" }, { abbrev: "BC", name: "British Columbia" }, { abbrev: "MB", name: "Manitoba" }, { abbrev: "NB", name: "New Brunswick" }, { abbrev: "NL", name: "Newfoundland & Labrador" }, { abbrev: "NT", name: "Northwest Territories" }, { abbrev: "NS", name: "Nova Scotia" }, { abbrev: "NU", name: "Nunavut" }, { abbrev: "ON", name: "Ontario" }, { abbrev: "PE", name: "Prince Edward Island" }, { abbrev: "QC", name: "Quebec" }, { abbrev: "SK", name: "Saskatchewan" }, { abbrev: "YT", name: "Yukon Territory" }];
-  }
-
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad WelcomePage');
-    this.storage.set('welcomeScreenPresented', true);
   }
   /**
    * Process a form's data fields
@@ -37,6 +32,7 @@ export class WelcomePage {
         defaultUnits: 'm'
       };
       this.storage.set('settings', settings);
+      //form data processed, so set the welcome screen presented as true
       this.storage.set('welcomeScreenPresented', true);
       this.viewCtrl.dismiss().then(() => console.log('view dismissed')).catch(err => console.error(err));
       console.log('submitted!');

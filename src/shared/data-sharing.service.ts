@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-
 @Injectable()
 export class DataSharingService {
     items: any[];
@@ -12,23 +11,39 @@ export class DataSharingService {
     constructor() {
         this.items = [];
     }
+    /**
+     * get survey items
+     */
     getItems() {
         return this.items;
     }
-
+    /**
+     * set survey items
+     * @param items survey items to be set
+     */
     setItems(items: any[]) {
         this.items = items;
     }
-
+    /**
+     * add another item to the session items
+     * @param item new survey item
+     */
     addItem(item: any) {
         this.items.push(item);
     }
-
+    /**
+     * remove an item from the session
+     * @param item item to be removed
+     */
     removeItem(item) {
         let index = this.getItemIndexById(item.id, this.items);
         this.items.splice(index, 1);
     }
-
+    /**
+     * return a survey item by its id
+     * @param id id number of the survey item
+     * @param array an array of survey items
+     */
     getItemIndexById(id, array: any[]) {
         for (let i = 0; i < array.length; i++) {
             if (id == array[i].id) {
@@ -37,7 +52,11 @@ export class DataSharingService {
         }
         return null;
     }
-
+    /**
+     * replace a survey item with another
+     * @param item new survey item
+     * @param index index of the survey item in the items array
+     */
     replaceItem(item: any, index: number) {
         this.items[index] = item;
     }

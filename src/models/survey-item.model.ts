@@ -1,21 +1,23 @@
 export class SurveyItem {
     public height: number;
-    public width: number;
+    public heightUnits: string;
+    public id: string;
+    public image: string;
+    public notes: string[];
     public quantity: number;
     public signType: string;
-    public notes: string[];
-    public image: string;
-    public heightUnits: string;
+    public width: number;
     public widthUnits: string;
 
-    constructor(height: number, width: number, quantity: number, signType: string, notes: string[], image: string, heightUnits: string, widthUnits) {
+    constructor(height: number, width: number, quantity: number, signType: string, notes: string[], image: string, heightUnits: string, widthUnits: string, id: string) {
         this.height = height;
-        this.width = width;
+        this.heightUnits = heightUnits;
+        this.image = image;
+        this.id = id;
+        this.notes = notes;
         this.quantity = quantity;
         this.signType = signType;
-        this.notes = notes;
-        this.image = image;
-        this.heightUnits = heightUnits;
+        this.width = width;
         this.widthUnits = widthUnits;
     }
     /**

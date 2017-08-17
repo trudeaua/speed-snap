@@ -31,12 +31,15 @@ export class ReviewPage {
         this.surveyType = navParams.data.surveyType;
         this.surveyItems = dataSharing.getItems();
         console.log(navParams.data);
+        //get settings from storage
         storage.get('settings').then(settings => {
             this.settings = settings;
             console.log(settings);
         });
+        //if the edit entry tip was not presented, present it
         storage.get('editEntryTipPresented').then((val: boolean) => {
             if (!val) {
+                //toast on how to edit an entry
                 this.toastCtrl.create({
                     message: 'Press & hold entries to edit them',
                     position: 'middle',
@@ -49,14 +52,19 @@ export class ReviewPage {
         })
         console.log(this.surveyItems);
     }
-
+    /**
+     * determine if there is at least one session item recorded, enable export to pdf button if so
+     */
     ionViewDidLoad() {
         console.log('ionViewDidLoad ReviewPage');
         if (this.surveyItems.length > 0) {
             this.enableExportBtn = true;
         }
     }
-
+    /**
+     * delete a session item
+     * @param item item to be deleted
+     */
     deleteEntry(item) {
         this.alertCtrl.create({
             title: 'Remove Entry',
@@ -76,7 +84,11 @@ export class ReviewPage {
             ]
         }).present();
     }
-
+    /**
+     * edit an item
+     * @param item item to be edited
+     * @param index index of the item in the surevy items array
+     */
     editEntry(item, index) {
         this.showEditForm = true;
         this.editingIndex = index;
@@ -86,7 +98,10 @@ export class ReviewPage {
         this.newHeightUnits = item.heightUnits;
         this.newWidthUnits = item.widthUnits;
     }
-
+    /**
+     * save any changes made to a session item
+     * @param form form with new session item content to be saved
+     */
     saveChanges(form: NgForm) {
         form.value.newHeightInput ? this.surveyItems[this.editingIndex].height = form.value.newHeightInput : this.surveyItems[this.editingIndex].height = this.oldHeight;
         form.value.newHeightInput ? this.surveyItems[this.editingIndex].width = form.value.newWidthInput : this.surveyItems[this.editingIndex].width = this.oldWidth;
@@ -96,135 +111,139 @@ export class ReviewPage {
         this.editingIndex = null;
         this.showEditForm = false;
     }
-    //gen PDF
+    /**
+     * export all session items to pdf
+     */
     toPdf() {
         let pdfItems = '';
         for (let i = 0; i < this.surveyItems.length; i++) {
-            pdfItems += `<table style="width: 100%" class="nobreak">
-            <tr>
-                <td style="width: 15%" class="session-item-td">` + (i + 1) + `</td>
-                <td style="width: 50%" class="session-item-td">
-                    <img style="width: 100%" src="` + this.surveyItems[i].image + `" alt="img">
-                </td>
-                <td style="width:35%" class="session-item-td">
-                    ` + this.surveyItems[i].signType + `
-                    <p>Notes: ` + this.surveyItems[i].htmlNotes + `</p>
-                    <p>Dimensions:<br>
-                        <ul>
-                            <li>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</li>
-                            <li>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</li>
-                            <li>Quantity: `+ this.surveyItems[i].quantity + `</li>
-                        </ul>
-                    </p>
-                </td>
-            </tr>
-        </table>`
+            pdfItems += `
+            <table style="width: 100%" class="nobreak">
+                <tr>
+                    <td style="width: 15%" class="session-item-td">` + (i + 1) + `</td>
+                    <td style="width: 50%" class="session-item-td">
+                        <img style="width: 100%" src="` + this.surveyItems[i].image + `" alt="img">
+                    </td>
+                    <td style="width:35%" class="session-item-td">
+                        ` + this.surveyItems[i].signType + `
+                        <p>Notes: ` + this.surveyItems[i].htmlNotes + `</p>
+                        <p>Dimensions:<br>
+                            <ul>
+                                <li>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</li>
+                                <li>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</li>
+                                <li>Quantity: `+ this.surveyItems[i].quantity + `</li>
+                            </ul>
+                        </p>
+                    </td>
+                </tr>
+            </table>`
         }
 
         let date = new Date;
+        //determine which contact fields are available, add them to the document if they are
         let contactInfo = "";
-        this.client.companyName ? contactInfo += "<li>"+ this.client.companyName + "</li>" : null;
-        this.client.address ? contactInfo += "<li>"+ this.client.address + "</li>" : null;
-        this.client.telephone ? contactInfo += "<li>"+ this.client.telephone + "</li>" : null;
-        this.client.email ? contactInfo += "<li>"+ this.client.email + "</li>" : null;
+        this.client.companyName ? contactInfo += "<li>" + this.client.companyName + "</li>" : null;
+        this.client.address ? contactInfo += "<li>" + this.client.address + "</li>" : null;
+        this.client.telephone ? contactInfo += "<li>" + this.client.telephone + "</li>" : null;
+        this.client.email ? contactInfo += "<li>" + this.client.email + "</li>" : null;
         let d = date.toDateString().slice(date.toDateString().indexOf(' '));
         cordova.plugins.pdf.htmlToPDF({
             data: `<!DOCTYPE html>
-<html lang="en">
+                    <html lang="en">
 
-<head>
-    <style>
-        body {
-            font-family: 'Arial', 'sans-serif';
-            position: relative;
-            margin-left: 90px;
-            margin-right: 90px;
-        }
+                    <head>
+                    <style>
+                        body {
+                            font-family: 'Arial', 'sans-serif';
+                            position: relative;
+                            margin-left: 90px;
+                            margin-right: 90px;
+                        }
 
-        .nobreak {
-            page-break-inside: avoid;
-        }
+                        .nobreak {
+                            page-break-inside: avoid;
+                        }
 
-        #page-header {
-            width: 100%;
-        }
+                        #page-header {
+                            width: 100%;
+                        }
 
-        .page-header-table {
-            font-size: 12px !important;
-        }
+                        .page-header-table {
+                            font-size: 12px !important;
+                        }
 
-        #main-content {
-            position: absolute;
-            width: 100%;
-            top: 350px;
-        }
+                        #main-content {
+                            position: absolute;
+                            width: 100%;
+                            top: 350px;
+                        }
 
-        .session-item-td {
-            border: 1px solid black;
-            vertical-align: top;
-            padding-left: 5px;
-            padding-right: 5px;
-            padding-top: 5px;
-            font-size: 12px;
-        }
+                        .session-item-td {
+                            border: 1px solid black;
+                            vertical-align: top;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            padding-top: 5px;
+                            font-size: 12px;
+                        }
 
-        #contact-info-container {
-            list-style-type: none;
-            font-size: 12px;
-            text-align: left;
-            vertical-align: top;
-            padding-left: 91px;
-        }
-    </style>
-</head>
+                        #contact-info-container {
+                            list-style-type: none;
+                            font-size: 12px;
+                            text-align: left;
+                            vertical-align: top;
+                            padding-left: 91px;
+                        }
+                    </style>
+                </head>
 
-<body>
-    <table style="width: 100%">
-        <tr>
-            <td style="vertical-align:top; width: 60%; text-align: left">
-                <img style="width:80%;" src="https://www.speedprocanada.com/images/default-source/default-album/new-speedpro-imaging.jpg?sfvrsn=4" alt="logo">
-                <ul id="contact-info-container">
-                    <li>`+ this.settings.companyName + `</li>
-                    <li>`+ this.settings.address + `</li>
-                    <li>T `+ this.settings.telephone + `</li>
-                    <li>E ` + this.settings.email + `</li>
-                </ul>
-            </td>
-            <td style="vertical-align:top; width: 40%; text-align: right">
-                <h2>Site Survey</h2>
-            </td>
-        </tr>
-    </table><br>
-    <table id="page-header" class="page-header-table">
-        <tr>
-            <td style="vertical-align:top">Client:</td>
-            <td style="vertical-align:top">` + this.client.name + `</td>
-            <td style="vertical-align:top"></td>
-        </tr>
-        <tr>
-            <td style="vertical-align:top">Location:</td>
-            <td style="vertical-align: top">
-                <ul style="display: inline;list-style-type: none;">
-                    <li>`+ this.client.companyName +`</li>
-                    <li>`+ this.client.address +`</li>
-                    <li>T `+ this.client.telephone +`</li>
-                    <li>E `+ this.client.email +`</li>
-                </ul>
-            </td>
-            <td style="vertical-align:bottom">Inspected By:</td>
-        </tr>
-        <tr>
-            <td style="vertical-align:top">Date Visited</td>
-            <td style="vertical-align:top">` + d + `</td>
-            <td style="vertical-align:top">`+ this.settings.name + `</td>
-        </tr>
-    </table>
-    <div id="main-content">
-        ` + pdfItems + `
-    </div>
-</body>
+                <body>
+                    <table style="width: 100%">
+                        <tr>
+                            <td style="vertical-align:top; width: 60%; text-align: left">
+                                <img style="width:80%;" src="https://www.speedprocanada.com/images/default-source/default-album/new-speedpro-imaging.jpg?sfvrsn=4" alt="logo">
+                                <ul id="contact-info-container">
+                                    <li>`+ this.settings.companyName + `</li>
+                                    <li>`+ this.settings.address + `</li>
+                                    <li>T `+ this.settings.telephone + `</li>
+                                    <li>E ` + this.settings.email + `</li>
+                                </ul>
+                            </td>
+                            <td style="vertical-align:top; width: 40%; text-align: right">
+                                <h2>Site Survey</h2>
+                            </td>
+                        </tr>
+                    </table><br>
+                    <table id="page-header" class="page-header-table">
+                        <tr>
+                            <td style="vertical-align:top">Client:</td>
+                            <td style="vertical-align:top">` + this.client.name + `</td>
+                            <td style="vertical-align:top"></td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:top">Location:</td>
+                            <td style="vertical-align: top">
+                                <ul style="display: inline;list-style-type: none;">
+                                    <li>`+ this.client.companyName + `</li>
+                                    <li>`+ this.client.address + `</li>
+                                    <li>T `+ this.client.telephone + `</li>
+                                    <li>E `+ this.client.email + `</li>
+                                </ul>
+                            </td>
+                            <td style="vertical-align:bottom">Inspected By:</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:top">Date Visited</td>
+                            <td style="vertical-align:top">` + d + `</td>
+                            <td style="vertical-align:top">`+ this.settings.name + `</td>
+                        </tr>
+                    </table>
+                    <div id="main-content">
+                        ` + pdfItems + `
+                    </div>
+                </body>
 
-</html>`,
+                </html>`,
             type: "share",
             landscape: "portrait",
             documentSize: "A4"

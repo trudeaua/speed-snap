@@ -8,6 +8,7 @@
 
 
 <ion-content padding-right>
+  <!--review all of the items recorded in the survey, make changes if necessary-->
   <ion-list>
     <div class="item-container" *ngFor="let item of surveyItems; let i = index">
       <ion-item text-wrap (press)="editEntry(item, i)" *ngIf="i != editingIndex">
@@ -36,6 +37,7 @@
           </ion-row>
         </ion-grid>
       </ion-item>
+      <!--form with edit fields-->
       <form *ngIf="showEditForm && i == editingIndex" #editForm="ngForm" (ngSubmit)="saveChanges(editForm, item, index)">
         <ion-grid>
           <ion-row>

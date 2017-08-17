@@ -9,13 +9,14 @@
       </button>
     </ion-buttons>
     <ion-buttons right>
+      <!--only show if the user has started a session and entered the client info-->
       <button ion-button *ngIf="showDataForm" (click)="restart()">New PDF</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-
+  <!--prompt the user to choose/create a contact-->
   <ion-grid *ngIf="!pickedContact && !showDataForm">
     <ion-row>
       <ion-col text-center>
@@ -31,7 +32,7 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
+  <!--Area with contact info fields-->
   <div *ngIf="pickedContact && !showDataForm">
     <ion-item text-wrap *ngIf="client.name">
       <ion-label>Name: {{client.name}}</ion-label>
@@ -48,13 +49,12 @@
     <ion-item text-wrap *ngIf="client.email">
       <ion-label>Email: {{client.email}}</ion-label>
     </ion-item>
-
     <button block ion-button (click)="submitClient()">Submit Client Info</button>
     <br><br>
     <button ion-button block small clear (click)="undoChooseContact()"><span style="text-decoration: underline">Undo</span></button>
   </div>
 
-
+  <!--Form with fields to be filled out regarding the survey measurements + notes-->
   <form *ngIf="showDataForm" #measurementsForm="ngForm" (ngSubmit)="process(measurementsForm)">
     <ion-title text-left>Items In Log: {{counter}}</ion-title>
     <div class="image-select-div">

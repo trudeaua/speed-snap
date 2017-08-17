@@ -18,8 +18,9 @@ export class SettingsPage {
   currentName: string;
   defaultUnits: string;
   currentProvince: string;
-  constructor( private storage: Storage, private toastCtrl: ToastController, public navCtrl: NavController, public navParams: NavParams, private viewCtrl: ViewController) {
+  constructor(private storage: Storage, private toastCtrl: ToastController, public navCtrl: NavController, public navParams: NavParams, private viewCtrl: ViewController) {
     this.provinces = [{ abbrev: "AB", name: "Alberta" }, { abbrev: "BC", name: "British Columbia" }, { abbrev: "MB", name: "Manitoba" }, { abbrev: "NB", name: "New Brunswick" }, { abbrev: "NL", name: "Newfoundland & Labrador" }, { abbrev: "NT", name: "Northwest Territories" }, { abbrev: "NS", name: "Nova Scotia" }, { abbrev: "NU", name: "Nunavut" }, { abbrev: "ON", name: "Ontario" }, { abbrev: "PE", name: "Prince Edward Island" }, { abbrev: "QC", name: "Quebec" }, { abbrev: "SK", name: "Saskatchewan" }, { abbrev: "YT", name: "Yukon Territory" }];
+    //get current settings from storage
     storage.get('settings').then((settings: any) => {
       this.settings = settings;
       console.log(settings);

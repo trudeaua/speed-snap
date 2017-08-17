@@ -1,7 +1,7 @@
 import { Camera, CameraOptions } from "@ionic-native/camera";
 import { Component } from '@angular/core';
-import { Contacts, Contact, ContactField, ContactName } from "@ionic-native/contacts";
-import { NavController, ActionSheetController, AlertController, ToastController, ModalController } from 'ionic-angular';
+import { Contacts, Contact } from "@ionic-native/contacts";
+import { NavController, Events, ActionSheetController, AlertController, ToastController, ModalController } from 'ionic-angular';
 import { NgForm } from "@angular/forms/src/forms";
 import { Storage } from "@ionic/storage";
 
@@ -37,6 +37,7 @@ export class HomePage {
   quantity: number;
   showDataForm: boolean;
   signType: string;
+  storedItems: any[];
   surveyType: string;
   heightUnits: string;
   widthUnits: string;
@@ -47,21 +48,25 @@ export class HomePage {
     private actionSheetCtrl: ActionSheetController,
     private contacts: Contacts,
     private dataSharing: DataSharingService,
+    private events: Events,
     private modalCtrl: ModalController,
     private storage: Storage,
     private toastCtrl: ToastController,
     public navCtrl: NavController,
     private camera: Camera) {
     this.notes = [];
+    this.storedItems = [];
     this.storage.keys().then(data => {
       console.log(data.toString());
-    }).catch(err => console.error(err));;
-    storage.get('welcomeScreenPresented').then((val: boolean) => {
+    }).catch(err => console.error(err));
+    //if the welcome screen was not presented, present it
+    this.storage.get('welcomeScreenPresented').then((val: boolean) => {
       if (!val) {
-        this.viewDidLoad();
+        this.showWelcomeScreen();
       }
-    }).catch(err => console.error(err));;
-    storage.get('settings').then((settings: any) => {
+    }).catch(err => console.error(err));
+    //get user settings from storage
+    this.storage.get('settings').then((settings: any) => {
       this.settings = settings;
       if (settings) {
         this.defaultUnits = settings.defaultUnits;
@@ -74,10 +79,48 @@ export class HomePage {
         this.heightUnits = 'm';
         this.widthUnits = 'm';
       }
-    }).catch(err => console.error(err));;
-  }
+    }).catch(err => console.error(err));
 
-  viewDidLoad() {
+    this.events.subscribe('loadPreviousSession', (sessionData: any) => {
+      let client;
+      sessionData.client.companyName ? client = sessionData.client.companyName : client = sessionData.client.name;
+      this.alertCtrl.create({
+        title: 'Previous session in progress',
+        subTitle: 'Load previous session?',
+        message: 'Session in progress for ' + client,
+        buttons: [
+          {
+            text: 'No',
+            role: 'cancel',
+            handler: () => {
+              this.storage.set('sessionInProgress', null);
+            }
+          },
+          {
+            text: 'Yes',
+            handler: () => {
+              dataSharing.setItems(sessionData.items);
+              this.counter = sessionData.items.length;
+              this.client = sessionData.client ? sessionData.client : this.client;
+              if (sessionData.client) {
+                this.pickedContact = true;
+                this.showDataForm = true;
+              }
+              this.toastCtrl.create({
+                message: 'Previous session restored.',
+                position: 'middle',
+                duration: 2000
+              }).present();
+            }
+          }
+        ]
+      }).present();
+    });
+  }
+  /**
+   * present the welcome screen modal
+   */
+  showWelcomeScreen() {
     this.modalCtrl.create(WelcomePage).present();
   }
   /**
@@ -91,7 +134,9 @@ export class HomePage {
       this.quantity = form.value.qtyInput;
       this.signType = form.value.signTypeInput;
 
-      let item = new SurveyItem(this.height, this.width, this.quantity, this.signType, this.notes, this.image, this.heightUnits, this.widthUnits);
+      let date = new Date();
+      let id = date.getTime().toString();
+      let item = new SurveyItem(this.height, this.width, this.quantity, this.signType, this.notes, this.image, this.heightUnits, this.widthUnits, id);
 
       this.prepareItem(item);
       this.counter++;
@@ -119,7 +164,9 @@ export class HomePage {
       alert.present();
     }
   }
-
+  /**
+   * pick a client from the phone's contacts, and extract the fields associated wiht it
+   */
   chooseContact() {
     this.contacts.pickContact().then((contact: Contact) => {
       console.log(contact);
@@ -171,7 +218,9 @@ export class HomePage {
       this.pickedContact = true;
     }).catch(err => { console.error(err) });
   }
-
+  /**
+   * create a new contact on a modal
+   */
   createContact() {
     let modal = this.modalCtrl.create(CreateContactPage);
     modal.present();
@@ -190,16 +239,24 @@ export class HomePage {
       this.pickedContact = true;
     });
   }
-
+  /**
+   * reverts the client info back to empty, prompts user to choose a contact again
+   */
   undoChooseContact() {
     this.client = { name: null, companyName: null, address: null, telephone: null, email: null };
     this.pickedContact = false;
   }
-
+  /**
+   * client info chosen, begin survey session
+   */
   submitClient() {
+    this.storage.set('sessionInProgress', { client: this.client, items: [] });
     this.showDataForm = true;
   }
-
+  /**
+   * prepare an item to be exported to pdf
+   * @param item A survey item recorded in the session
+   */
   prepareItem(item: SurveyItem) {
     let htmlNotes = '<ul>';
     for (let i = 0; i < item.notes.length; i++) {
@@ -211,9 +268,7 @@ export class HomePage {
     else {
       htmlNotes += '</ul>';
     }
-    let date = new Date;
-    console.log(date.getTime().toString());
-    this.dataSharing.addItem({
+    let surveyItem = {
       height: item.height,
       width: item.width,
       quantity: item.quantity,
@@ -222,19 +277,21 @@ export class HomePage {
       image: item.image,
       heightUnits: item.heightUnits,
       widthUnits: item.widthUnits,
-      id: date.getTime().toString(),
+      id: item.id,
       area: item.calcArea(item.height, item.width, item.heightUnits, item.widthUnits)
+    }
+    this.dataSharing.addItem(surveyItem);
+    this.storedItems.push(surveyItem);
+    this.storage.set('sessionInProgress', { client: this.client, items: this.storedItems }).then(() => {
+      this.toastCtrl.create({
+        message: 'Added item to log.',
+        duration: 1500,
+        position: 'bottom'
+      }).present();
+
+      this.addAnotherItem();
     });
-
-    this.toastCtrl.create({
-      message: 'Added item to log.',
-      duration: 1500,
-      position: 'bottom'
-    }).present();
-
-    this.addAnotherItem();
   }
-
   /**
    * open the camera and take a picture
    */
@@ -331,17 +388,22 @@ export class HomePage {
    */
   restart() {
     this.storage.get('settings').then((settings: any) => {
-      this.settings = settings;
-      if (settings) {
-        this.defaultUnits = settings.defaultUnits;
-        this.heightUnits = settings.defaultUnits;
-        this.widthUnits = settings.defaultUnits;
-        this.name = settings.name;
-        this.dataSharing.setItems([]);
-        this.addAnotherItem();
-        this.counter = 0;
-        this.showDataForm = false;
-      }
+      this.storage.set('sessionInProgress', null).then(() => {
+        this.settings = settings;
+        if (settings) {
+          this.defaultUnits = settings.defaultUnits;
+          this.heightUnits = settings.defaultUnits;
+          this.widthUnits = settings.defaultUnits;
+          this.name = settings.name;
+          this.dataSharing.setItems([]);
+          this.addAnotherItem();
+          this.counter = 0;
+          this.storedItems = [];
+          this.client = { name: null, companyName: null, address: null, telephone: null, email: null };          
+          this.pickedContact = false;
+          this.showDataForm = false;
+        }
+      });
     }).catch(err => console.error(err));
   }
   /**
