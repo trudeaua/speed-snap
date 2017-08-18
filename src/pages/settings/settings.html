@@ -17,16 +17,6 @@
       <ion-label>Name</ion-label>
       <ion-input text-right type="text" name="userNameInput" placeholder="Name" value="{{currentName}}" ngModel></ion-input>
     </ion-item>
-    <ion-item id="unit-settings">
-      <ion-label>Default Units</ion-label>
-      <ion-select placeholder="Default Units" [(ngModel)]="defaultUnits" [ngModelOptions]="{standalone: true}">
-        <ion-option [selected]="defaultUnits == 'm'" value="m">Metres (m)</ion-option>
-        <ion-option [selected]="defaultUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
-        <ion-option [selected]="defaultUnits == 'in'" value="in">Inches (in)</ion-option>
-        <ion-option [selected]="defaultUnits == 'ft'" value="ft">Feet (ft)</ion-option>
-      </ion-select>
-      <div></div>
-    </ion-item>
     <ion-item>
       <ion-label>Company Name</ion-label>
       <ion-input text-right type="text" name="companyNameInput" placeholder="Company Name" value="{{currentCompanyName}}" ngModel></ion-input>
@@ -38,10 +28,6 @@
     <ion-item>
       <ion-label>City</ion-label>
       <ion-input text-right type="text" name="cityInput" placeholder="City" value="{{currentCity}}" ngModel></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Email</ion-label>
-      <ion-input text-right type="email" name="emailInput" placeholder="Email" value="{{currentEmail}}" ngModel></ion-input>
     </ion-item>
     <ion-item id="province-settings">
       <ion-label>Province</ion-label>
@@ -55,8 +41,22 @@
       <ion-input text-right type="text" name="postalInput" placeholder="Postal Code" value="{{currentPostalCode}}" ngModel></ion-input>
     </ion-item>
     <ion-item>
+      <ion-label>Email</ion-label>
+      <ion-input text-right type="email" name="emailInput" placeholder="Email" value="{{currentEmail}}" ngModel></ion-input>
+    </ion-item>
+    <ion-item>
       <ion-label>Telephone</ion-label>
       <ion-input text-right type="number" name="phoneInput" placeholder="Telephone" value="{{currentTelephone}}" type="tel" ngModel></ion-input>
+    </ion-item>
+    <ion-item id="unit-settings">
+      <ion-label>Default Units</ion-label>
+      <ion-select placeholder="Default Units" [(ngModel)]="defaultUnits" [ngModelOptions]="{standalone: true}">
+        <ion-option [selected]="defaultUnits == 'm'" value="m">Metres (m)</ion-option>
+        <ion-option [selected]="defaultUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
+        <ion-option [selected]="defaultUnits == 'in'" value="in">Inches (in)</ion-option>
+        <ion-option [selected]="defaultUnits == 'ft'" value="ft">Feet (ft)</ion-option>
+      </ion-select>
+      <div></div>
     </ion-item>
     <button ion-button type="submit" block>Save Changes</button>
   </form>

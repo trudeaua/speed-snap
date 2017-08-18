@@ -75,6 +75,7 @@ export class HomePage {
     this.events.subscribe('loadPreviousSession', (sessionData: any) => {
       let client;
       sessionData.client.companyName ? client = sessionData.client.companyName : client = sessionData.client.name;
+      console.log(sessionData);
       this.alertCtrl.create({
         title: 'Previous session in progress',
         subTitle: 'Load previous session?',

@@ -63,7 +63,7 @@ export class ReviewPage {
                     this.storage.set('editEntryTipPresented', true);
                 });
             }
-        })
+        });
         console.log(this.surveyItems);
     }
     /**
@@ -74,6 +74,7 @@ export class ReviewPage {
         if (this.surveyItems.length > 0) {
             this.enableExportBtn = true;
         }
+        this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems });
     }
     /**
      * delete a session item
@@ -183,13 +184,13 @@ export class ReviewPage {
         let pdfItems = '';
         for (let i = 0; i < this.surveyItems.length; i++) {
             pdfItems += `
-            <table style="width: 100%" class="nobreak">
+            <table style="width: 100%; border: 1px solid black;" class="nobreak">
                 <tr>
-                    <td style="width: 15%" class="session-item-td">` + (i + 1) + `</td>
-                    <td style="width: 50%" class="session-item-td">
+                    <td style="width: 7%" class="session-item-td">` + (i + 1) + `</td>
+                    <td style="width: 64%" class="session-item-td">
                         <img style="width: 100%" src="` + this.surveyItems[i].image + `" alt="img">
                     </td>
-                    <td style="width:35%" class="session-item-td">
+                    <td style="width:29%" class="session-item-td">
                         ` + this.surveyItems[i].signType + `
                         <p>` + this.surveyItems[i].htmlNotes + `</p>
                         <p>Dimensions:<br>
@@ -207,8 +208,8 @@ export class ReviewPage {
 
         let date = new Date();
         //determine which contact fields are available, add them to the document if they are
-        let contactInfo = "";
-        this.client.companyName ? contactInfo += "<li>" + this.client.companyName + "</li>" : null;
+        let clientInfo = "";
+        this.client.companyName ? clientInfo += "<li>" + this.client.companyName + "</li>" : null;
         let addressPt1;
         let addressPt2;
         if (this.client.address) {
@@ -216,11 +217,12 @@ export class ReviewPage {
             addressPt2 = this.client.address.slice(this.client.address.indexOf(',') + 1).trim();
         }
         if (addressPt1 || addressPt2) {
-            addressPt1 ? contactInfo += "<li>" + addressPt1 + "</li>" : null;
-            addressPt2 ? contactInfo += "<li>" + addressPt2 + "</li>" : null;
+            addressPt1 ? clientInfo += "<li>" + addressPt1 + "</li>" : null;
+            addressPt2 ? clientInfo += "<li>" + addressPt2 + "</li>" : null;
         }
-        this.client.telephone ? contactInfo += "<li>" + this.client.telephone + "</li>" : null;
-        this.client.email ? contactInfo += "<li>" + this.client.email + "</li>" : null;
+        this.client.telephone ? clientInfo += "<li>" + this.client.telephone + "</li>" : null;
+        this.client.email ? clientInfo += "<li>" + this.client.email + "</li>" : null;
+        
         let d = date.toDateString().slice(date.toDateString().indexOf(' '));
         cordova.plugins.pdf.htmlToPDF({
             data: `<!DOCTYPE html>
@@ -231,8 +233,6 @@ export class ReviewPage {
                         body {
                             font-family: 'Arial', 'sans-serif';
                             position: relative;
-                            margin-left: 90px;
-                            margin-right: 90px;
                         }
 
                         .nobreak {
@@ -250,11 +250,11 @@ export class ReviewPage {
                         #main-content {
                             position: absolute;
                             width: 100%;
-                            top: 300px;
+                            top: 275px;
                         }
 
                         .session-item-td {
-                            border: 1px solid black;
+                            
                             vertical-align: top;
                             padding-left: 5px;
                             padding-right: 5px;
@@ -267,14 +267,14 @@ export class ReviewPage {
                             font-size: 13px;
                             text-align: left;
                             vertical-align: top;
-                            padding-left: 75px;
+                            padding-left: 95px;
                             margin-top: -10px;
                         }
                     </style>
                 </head>
 
                 <body>
-                    <table style="width: 100%">
+                    <table style="width: 100%;">
                         <tr>
                             <td style="vertical-align:top; width: 60%; text-align: left">
                                 <img style="width:80%;" src="https://www.speedprocanada.com/images/default-source/default-album/new-speedpro-imaging.jpg?sfvrsn=4" alt="logo">
@@ -298,10 +298,10 @@ export class ReviewPage {
                             <td style="vertical-align:top"></td>
                         </tr>
                         <tr>
-                            <td style="vertical-align:top">Location:</td>
+                            <td>Location:</td>
                             <td style="vertical-align: top">
                                 <ul style="display: inline;list-style-type: none;">
-                                    ` + contactInfo + `
+                                    ` + clientInfo + `
                                 </ul>
                             </td>
                             <td style="vertical-align:bottom">Inspected By:</td>
