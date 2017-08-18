@@ -18,8 +18,16 @@
     <ion-input text-center placeholder="Postal Code" name="postalInput" class="welcome-field-input" ngModel></ion-input>
     <ion-input text-center type="number" placeholder="Phone Number (Optional)" name="phoneInput" class="welcome-field-input"
       ngModel></ion-input>
-    <br><br>
-    <button block ion-button clear type="submit">Start Snapping!</button>
+    <ion-item no-lines>
+      <ion-select [selectOptions]="{title: 'Default Units', subtitle: 'These are used for sign measurements'}" placeholder="Default Units"
+        class="welcome-field-input" text-center [(ngModel)]="defaultUnits" [ngModelOptions]="{standalone: true}">
+        <ion-option value="m">Metres (m)</ion-option>
+        <ion-option value="cm">Centimetres (cm)</ion-option>
+        <ion-option value="in">Inches (in)</ion-option>
+        <ion-option value="ft">Feet (ft)</ion-option>
+      </ion-select>
+    </ion-item>
+    <button block ion-button large clear type="submit">Start Snapping!</button>
   </form>
   <p text-center class="welcome-footer">This information is for in-app purposes only. We do not collect your personal information.</p>
 </ion-content>

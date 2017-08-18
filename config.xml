@@ -3,7 +3,7 @@
     <name>Speed Snap</name>
     <description>An app to survey sites quickly and efficiently export them to PDF.</description>
     <author email="alextrudeau97@gmail.com">Alex Trudeau</author>
-    <content src="index.html" />
+    <content original-src="index.html" src="http://192.168.17.17:8100" />
     <access origin="*" />
     <allow-navigation href="http://ionic.local/*" />
     <allow-intent href="http://*/*" />
@@ -79,6 +79,7 @@
     </platform>
     <allow-navigation href="http://192.168.17.17:8101" />
     <allow-navigation href="http://10.240.114.75:8100" />
+    <allow-navigation href="http://192.168.17.17:8100" />
     <engine name="android" spec="^6.2.3" />
     <plugin name="cordova-pdf-generator" spec="^1.5.3" />
     <plugin name="cordova-plugin-camera" spec="^2.4.1" />
@@ -86,6 +87,7 @@
     <plugin name="cordova-plugin-console" spec="^1.0.5" />
     <plugin name="cordova-plugin-contacts" spec="^2.3.1" />
     <plugin name="cordova-plugin-device" spec="^1.1.4" />
+    <plugin name="cordova-plugin-email-composer" spec="^0.8.7" />
     <plugin name="cordova-plugin-splashscreen" spec="^4.0.3" />
     <plugin name="cordova-plugin-statusbar" spec="^2.2.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.1" />

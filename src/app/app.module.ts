@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { Camera } from "@ionic-native/camera";
 import { Contacts } from "@ionic-native/contacts";
+import { EmailComposer } from "@ionic-native/email-composer";
 import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -36,7 +37,7 @@ import { DataSharingService } from "../shared/data-sharing.service";
   ],
   providers: [
     StatusBar, Contacts,
-    SplashScreen, Camera, DataSharingService,
+    SplashScreen, Camera, DataSharingService, EmailComposer,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

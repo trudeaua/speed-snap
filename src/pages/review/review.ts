@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
+import { ActionSheetController, Events, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
 import { DataSharingService } from "../../shared/data-sharing.service";
-import { NgForm } from "@angular/forms/src/forms";
+import { EmailComposer, EmailComposerOptions } from "@ionic-native/email-composer";
 import { Storage } from "@ionic/storage";
 declare var cordova: any;
 
@@ -10,12 +10,16 @@ declare var cordova: any;
     templateUrl: 'review.html',
 })
 export class ReviewPage {
+    base64File: string;
     client: any;
     editingIndex: number;
     enableExportBtn: boolean = false;
     location: string;
     name: string;
+    newHeight: number;
     newHeightUnits: string;
+    newQuantity: number;
+    newWidth: number;
     newWidthUnits: string;
     oldHeight: number;
     oldQuantity: number;
@@ -24,7 +28,17 @@ export class ReviewPage {
     showEditForm: boolean;
     surveyItems: any[];
     surveyType: string;
-    constructor(private alertCtrl: AlertController, private toastCtrl: ToastController, private dataSharing: DataSharingService, private storage: Storage, public navCtrl: NavController, public navParams: NavParams) {
+    constructor(
+        private actionSheetCtrl: ActionSheetController,
+        private alertCtrl: AlertController,
+        private dataSharing: DataSharingService,
+        private emailComposer: EmailComposer,
+        private events: Events,
+        public navCtrl: NavController,
+        public navParams: NavParams,
+        private storage: Storage,
+        private toastCtrl: ToastController) {
+
         this.client = navParams.data.client;
         this.name = navParams.data.name;
         this.location = navParams.data.location;
@@ -66,7 +80,7 @@ export class ReviewPage {
      * @param item item to be deleted
      */
     deleteEntry(item) {
-        this.alertCtrl.create({
+        let alert = this.alertCtrl.create({
             title: 'Remove Entry',
             subTitle: 'Do you really want to remove this entry?',
             buttons: [
@@ -79,10 +93,15 @@ export class ReviewPage {
                     handler: () => {
                         this.dataSharing.removeItem(item);
                         this.showEditForm = false;
+                        this.editingIndex = null;
                     }
                 }
             ]
-        }).present();
+        });
+        alert.present();
+        alert.onDidDismiss(() => {
+            this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems });
+        });
     }
     /**
      * edit an item
@@ -95,6 +114,9 @@ export class ReviewPage {
         this.oldHeight = Number.parseInt(item.height);
         this.oldWidth = Number.parseInt(item.width);
         this.oldQuantity = Number.parseInt(item.quantity);
+        this.newHeight = item.height;
+        this.newWidth = item.width;
+        this.newQuantity = item.quantity;
         this.newHeightUnits = item.heightUnits;
         this.newWidthUnits = item.widthUnits;
     }
@@ -102,19 +124,62 @@ export class ReviewPage {
      * save any changes made to a session item
      * @param form form with new session item content to be saved
      */
-    saveChanges(form: NgForm) {
-        form.value.newHeightInput ? this.surveyItems[this.editingIndex].height = form.value.newHeightInput : this.surveyItems[this.editingIndex].height = this.oldHeight;
-        form.value.newHeightInput ? this.surveyItems[this.editingIndex].width = form.value.newWidthInput : this.surveyItems[this.editingIndex].width = this.oldWidth;
-        form.value.newHeightInput ? this.surveyItems[this.editingIndex].quantity = form.value.newQtyInput : this.surveyItems[this.editingIndex].quantity = this.oldQuantity;
+    saveChanges() {
+        this.surveyItems[this.editingIndex].height = this.newHeight;
+        this.surveyItems[this.editingIndex].width = this.newWidth;
+        this.surveyItems[this.editingIndex].quantity = this.newQuantity;
         this.surveyItems[this.editingIndex].widthUnits = this.newWidthUnits;
         this.surveyItems[this.editingIndex].heightUnits = this.newHeightUnits;
-        this.editingIndex = null;
-        this.showEditForm = false;
+        this.surveyItems[this.editingIndex].area = this.dataSharing.calcArea(this.newHeight, this.newWidth, this.newHeightUnits, this.newWidthUnits);
+        this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems }).then(() => {
+            this.editingIndex = null;
+            this.showEditForm = false;
+        });
+    }
+
+    openShareOptions() {
+        let actionSheet = this.actionSheetCtrl.create({
+            buttons: [
+                {
+                    text: 'Print',
+                    icon: 'print',
+                    handler: () => {
+                        this.toPdf('share');
+                    }
+                },
+                {
+                    text: 'Share',
+                    icon: 'share',
+                    handler: () => {
+                        //gen pdf, send email w/ pdf as attachment
+                        this.toPdf('base64');
+                        this.events.subscribe('base64:received', () => {
+                            let date = new Date();
+                            let email: EmailComposerOptions = {
+                                to: this.client.email,
+                                attachments: ['base64:SiteSurvey_' + date.toDateString() + '.pdf//' + this.base64File],
+                                subject: 'Site Survey',
+                                body: "Here's the PDF of the site survey from today.",
+                                isHtml: true
+                            }
+                            setTimeout(() => {
+                                this.emailComposer.open(email).catch(err => console.log(err));
+                            }, 500);
+                        });
+                    }
+                },
+                {
+                    text: 'Cancel',
+                    role: 'destructive'
+                }
+            ]
+        });
+        actionSheet.present();
     }
     /**
      * export all session items to pdf
      */
-    toPdf() {
+    toPdf(type: string) {
         let pdfItems = '';
         for (let i = 0; i < this.surveyItems.length; i++) {
             pdfItems += `
@@ -126,11 +191,12 @@ export class ReviewPage {
                     </td>
                     <td style="width:35%" class="session-item-td">
                         ` + this.surveyItems[i].signType + `
-                        <p>Notes: ` + this.surveyItems[i].htmlNotes + `</p>
+                        <p>` + this.surveyItems[i].htmlNotes + `</p>
                         <p>Dimensions:<br>
                             <ul>
                                 <li>Height: `+ this.surveyItems[i].height + ' ' + this.surveyItems[i].heightUnits + `</li>
                                 <li>Width: ` + this.surveyItems[i].width + ' ' + this.surveyItems[i].widthUnits + `</li>
+                                <li>Area: `+ this.surveyItems[i].area + `</li>
                                 <li>Quantity: `+ this.surveyItems[i].quantity + `</li>
                             </ul>
                         </p>
@@ -139,11 +205,20 @@ export class ReviewPage {
             </table>`
         }
 
-        let date = new Date;
+        let date = new Date();
         //determine which contact fields are available, add them to the document if they are
         let contactInfo = "";
         this.client.companyName ? contactInfo += "<li>" + this.client.companyName + "</li>" : null;
-        this.client.address ? contactInfo += "<li>" + this.client.address + "</li>" : null;
+        let addressPt1;
+        let addressPt2;
+        if (this.client.address) {
+            addressPt1 = this.client.address.slice(0, this.client.address.indexOf(',')).trim();
+            addressPt2 = this.client.address.slice(this.client.address.indexOf(',') + 1).trim();
+        }
+        if (addressPt1 || addressPt2) {
+            addressPt1 ? contactInfo += "<li>" + addressPt1 + "</li>" : null;
+            addressPt2 ? contactInfo += "<li>" + addressPt2 + "</li>" : null;
+        }
         this.client.telephone ? contactInfo += "<li>" + this.client.telephone + "</li>" : null;
         this.client.email ? contactInfo += "<li>" + this.client.email + "</li>" : null;
         let d = date.toDateString().slice(date.toDateString().indexOf(' '));
@@ -175,7 +250,7 @@ export class ReviewPage {
                         #main-content {
                             position: absolute;
                             width: 100%;
-                            top: 350px;
+                            top: 300px;
                         }
 
                         .session-item-td {
@@ -189,10 +264,11 @@ export class ReviewPage {
 
                         #contact-info-container {
                             list-style-type: none;
-                            font-size: 12px;
+                            font-size: 13px;
                             text-align: left;
                             vertical-align: top;
-                            padding-left: 91px;
+                            padding-left: 75px;
+                            margin-top: -10px;
                         }
                     </style>
                 </head>
@@ -204,13 +280,14 @@ export class ReviewPage {
                                 <img style="width:80%;" src="https://www.speedprocanada.com/images/default-source/default-album/new-speedpro-imaging.jpg?sfvrsn=4" alt="logo">
                                 <ul id="contact-info-container">
                                     <li>`+ this.settings.companyName + `</li>
-                                    <li>`+ this.settings.address + `</li>
+                                    <li>`+ this.settings.address + `</li> 
+                                    <li>`+ this.settings.city + ', ' + this.settings.province + ' ' + this.settings.postalCode + `</li>
                                     <li>T `+ this.settings.telephone + `</li>
                                     <li>E ` + this.settings.email + `</li>
                                 </ul>
                             </td>
                             <td style="vertical-align:top; width: 40%; text-align: right">
-                                <h2>Site Survey</h2>
+                                <h2>Sign Survey</h2>
                             </td>
                         </tr>
                     </table><br>
@@ -224,16 +301,13 @@ export class ReviewPage {
                             <td style="vertical-align:top">Location:</td>
                             <td style="vertical-align: top">
                                 <ul style="display: inline;list-style-type: none;">
-                                    <li>`+ this.client.companyName + `</li>
-                                    <li>`+ this.client.address + `</li>
-                                    <li>T `+ this.client.telephone + `</li>
-                                    <li>E `+ this.client.email + `</li>
+                                    ` + contactInfo + `
                                 </ul>
                             </td>
                             <td style="vertical-align:bottom">Inspected By:</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align:top">Date Visited</td>
+                            <td style="vertical-align:top">Date Visited:</td>
                             <td style="vertical-align:top">` + d + `</td>
                             <td style="vertical-align:top">`+ this.settings.name + `</td>
                         </tr>
@@ -244,10 +318,15 @@ export class ReviewPage {
                 </body>
 
                 </html>`,
-            type: "share",
+            type: type,
             landscape: "portrait",
             documentSize: "A4"
-        }, (success) => console.log('success', success), (err) => console.error('error', err));
+        }, (success) => {
+            if (type == 'base64') {
+                this.base64File = success;
+                this.events.publish('base64:received');
+            }
+        }, (err) => console.error('error', err));
     }
 
 }

@@ -27,6 +27,7 @@ export class HomePage {
   client = { name: null, companyName: null, address: null, telephone: null, email: null };
   displayErrMsg: boolean;
   defaultUnits: string;
+  firstName: string;
   height: number;
   image: string;
   counter: number = 0;
@@ -64,22 +65,12 @@ export class HomePage {
       if (!val) {
         this.showWelcomeScreen();
       }
-    }).catch(err => console.error(err));
-    //get user settings from storage
-    this.storage.get('settings').then((settings: any) => {
-      this.settings = settings;
-      if (settings) {
-        this.defaultUnits = settings.defaultUnits;
-        this.heightUnits = settings.defaultUnits;
-        this.widthUnits = settings.defaultUnits;
-        this.name = settings.name;
-      }
       else {
-        this.defaultUnits = 'm';
-        this.heightUnits = 'm';
-        this.widthUnits = 'm';
+
       }
     }).catch(err => console.error(err));
+
+    this.getUserSettings();
 
     this.events.subscribe('loadPreviousSession', (sessionData: any) => {
       let client;
@@ -88,6 +79,7 @@ export class HomePage {
         title: 'Previous session in progress',
         subTitle: 'Load previous session?',
         message: 'Session in progress for ' + client,
+        enableBackdropDismiss: false,
         buttons: [
           {
             text: 'No',
@@ -121,7 +113,28 @@ export class HomePage {
    * present the welcome screen modal
    */
   showWelcomeScreen() {
-    this.modalCtrl.create(WelcomePage).present();
+    let modal = this.modalCtrl.create(WelcomePage, {}, {
+      enableBackdropDismiss: false
+    });
+    modal.present();
+    modal.onWillDismiss(() => {
+      this.getUserSettings();
+    })
+  }
+  /**
+   * get user settings from storage
+   */
+  getUserSettings() {
+    this.storage.get('settings').then((settings: any) => {
+      this.settings = settings;
+      if (settings != null) {
+        this.defaultUnits = settings.defaultUnits;
+        this.heightUnits = settings.defaultUnits;
+        this.widthUnits = settings.defaultUnits;
+        this.name = settings.name;
+        this.firstName = this.name.slice(0, this.name.indexOf(' '));
+      }
+    }).catch(err => console.error(err));
   }
   /**
    * process form data
@@ -225,18 +238,20 @@ export class HomePage {
     let modal = this.modalCtrl.create(CreateContactPage);
     modal.present();
     modal.onDidDismiss((contact: Contact) => {
-      this.client.address = contact.addresses[0].formatted;
-      if (contact.organizations.length > 0) {
-        this.client.companyName = contact.organizations[0].name;
+      if (contact) {
+        this.client.address = contact.addresses[0].formatted;
+        if (contact.organizations.length > 0) {
+          this.client.companyName = contact.organizations[0].name;
+        }
+        if (contact.emails.length > 0) {
+          this.client.email = contact.emails[0].value;
+        }
+        this.client.name = contact.name.formatted;
+        if (contact.phoneNumbers.length > 0) {
+          this.client.telephone = contact.phoneNumbers[0].value;
+        }
+        this.pickedContact = true;
       }
-      if (contact.emails.length > 0) {
-        this.client.email = contact.emails[0].value;
-      }
-      this.client.name = contact.name.formatted;
-      if (contact.phoneNumbers.length > 0) {
-        this.client.telephone = contact.phoneNumbers[0].value;
-      }
-      this.pickedContact = true;
     });
   }
   /**
@@ -258,11 +273,11 @@ export class HomePage {
    * @param item A survey item recorded in the session
    */
   prepareItem(item: SurveyItem) {
-    let htmlNotes = '<ul>';
+    let htmlNotes = 'Notes: <ul>';
     for (let i = 0; i < item.notes.length; i++) {
       htmlNotes += '<li>' + item.notes[i] + '</li>';
     }
-    if (htmlNotes == '<ul>') {
+    if (htmlNotes == 'Notes: <ul>') {
       htmlNotes = '';
     }
     else {
@@ -278,7 +293,7 @@ export class HomePage {
       heightUnits: item.heightUnits,
       widthUnits: item.widthUnits,
       id: item.id,
-      area: item.calcArea(item.height, item.width, item.heightUnits, item.widthUnits)
+      area: this.dataSharing.calcArea(item.height, item.width, item.heightUnits, item.widthUnits)
     }
     this.dataSharing.addItem(surveyItem);
     this.storedItems.push(surveyItem);
@@ -387,24 +402,39 @@ export class HomePage {
    * restart the form process to add another pdf
    */
   restart() {
-    this.storage.get('settings').then((settings: any) => {
-      this.storage.set('sessionInProgress', null).then(() => {
-        this.settings = settings;
-        if (settings) {
-          this.defaultUnits = settings.defaultUnits;
-          this.heightUnits = settings.defaultUnits;
-          this.widthUnits = settings.defaultUnits;
-          this.name = settings.name;
-          this.dataSharing.setItems([]);
-          this.addAnotherItem();
-          this.counter = 0;
-          this.storedItems = [];
-          this.client = { name: null, companyName: null, address: null, telephone: null, email: null };          
-          this.pickedContact = false;
-          this.showDataForm = false;
+    this.alertCtrl.create({
+      title: 'Start a new Sign Survey?',
+      subTitle: 'This will delete the current session',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel'
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            this.storage.get('settings').then((settings: any) => {
+              this.storage.set('sessionInProgress', null).then(() => {
+                this.settings = settings;
+                if (settings) {
+                  this.defaultUnits = settings.defaultUnits;
+                  this.heightUnits = settings.defaultUnits;
+                  this.widthUnits = settings.defaultUnits;
+                  this.name = settings.name;
+                  this.dataSharing.setItems([]);
+                  this.addAnotherItem();
+                  this.counter = 0;
+                  this.storedItems = [];
+                  this.client = { name: null, companyName: null, address: null, telephone: null, email: null };
+                  this.pickedContact = false;
+                  this.showDataForm = false;
+                }
+              });
+            }).catch(err => console.error(err));
+          }
         }
-      });
-    }).catch(err => console.error(err));
+      ]
+    }).present();
   }
   /**
    * open the settings page

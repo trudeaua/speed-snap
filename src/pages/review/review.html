@@ -28,7 +28,6 @@
                 </ion-row>
                 <ion-row>
                   <ion-col>
-                    Notes:<br>
                     <span [innerHTML]="item.htmlNotes"></span>
                   </ion-col>
                 </ion-row>
@@ -38,7 +37,7 @@
         </ion-grid>
       </ion-item>
       <!--form with edit fields-->
-      <form *ngIf="showEditForm && i == editingIndex" #editForm="ngForm" (ngSubmit)="saveChanges(editForm, item, index)">
+      <div *ngIf="showEditForm && i == editingIndex">
         <ion-grid>
           <ion-row>
             <ion-col col-5>
@@ -50,7 +49,7 @@
                   <ion-col>
                     <ion-label>Height</ion-label>
                     <ion-input type="number" placeholder="Height" value="{{item.height}}" style="border: 1px solid black" name="newHeightInput"
-                      ngModel></ion-input>
+                      [(ngModel)]="newHeight"></ion-input>
                     <ion-item>
                       <ion-label>Units: </ion-label>
                       <ion-select [(ngModel)]="newHeightUnits" placeholder="Units" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Height Units', subTitle: 'Select the height units'}">
@@ -64,7 +63,7 @@
                   <ion-col>
                     <ion-label>Width</ion-label>
                     <ion-input type="number" placeholder="Width" value="{{item.width}}" style="border: 1px solid black" name="newWidthInput"
-                      ngModel></ion-input>
+                      [(ngModel)]="newWidth"></ion-input>
                     <ion-item>
                       <ion-label>Units: </ion-label>
                       <ion-select [(ngModel)]="newWidthUnits" placeholder="Units" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Width Units', subTitle: 'Select the width units'}">
@@ -80,7 +79,7 @@
                   <ion-col>
                     <ion-label>Qty.</ion-label>
                     <ion-input type="number" placeholder="Qty." value="{{item.quantity}}" style="border: 1px solid black" name="newQtyInput"
-                      ngModel></ion-input>
+                      [(ngModel)]="newQuantity"></ion-input>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -90,13 +89,13 @@
         <ion-grid>
           <ion-row>
             <ion-col style="text-align: right">
-              <button type="submit" id="save-changes-btn" ion-button>Finish</button>
+              <button (click)="saveChanges()" id="save-changes-btn" ion-button>Finish</button>
             </ion-col>
             <ion-col style="text-align: left"><button ion-button type="button" (click)="deleteEntry(item, i)">Delete Entry</button></ion-col>
           </ion-row>
         </ion-grid>
-      </form>
+      </div>
     </div>
   </ion-list>
-  <div padding-left><button ion-button block [disabled]="!enableExportBtn" (click)="toPdf()">Export All Entries To PDF</button></div>
+  <div padding-left padding-bottom><button ion-button block [disabled]="!enableExportBtn" (click)="openShareOptions()">Export Survey</button><br><br></div>
 </ion-content>

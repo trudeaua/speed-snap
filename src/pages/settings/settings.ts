@@ -22,18 +22,18 @@ export class SettingsPage {
     this.provinces = [{ abbrev: "AB", name: "Alberta" }, { abbrev: "BC", name: "British Columbia" }, { abbrev: "MB", name: "Manitoba" }, { abbrev: "NB", name: "New Brunswick" }, { abbrev: "NL", name: "Newfoundland & Labrador" }, { abbrev: "NT", name: "Northwest Territories" }, { abbrev: "NS", name: "Nova Scotia" }, { abbrev: "NU", name: "Nunavut" }, { abbrev: "ON", name: "Ontario" }, { abbrev: "PE", name: "Prince Edward Island" }, { abbrev: "QC", name: "Quebec" }, { abbrev: "SK", name: "Saskatchewan" }, { abbrev: "YT", name: "Yukon Territory" }];
     //get current settings from storage
     storage.get('settings').then((settings: any) => {
-      this.settings = settings;
-      console.log(settings);
-      this.defaultUnits = settings.defaultUnits;
-      this.currentName = settings.name;
-      this.currentAddress = settings.address;
-      this.currentCompanyName = settings.companyName;
-      this.currentCity = settings.city;
-      this.currentEmail = settings.email;
-      this.currentPostalCode = settings.postalCode;
-      this.currentTelephone = settings.telephone;
-      this.currentProvince = settings.province;
-
+      if (settings) {
+        this.settings = settings;
+        this.defaultUnits = settings.defaultUnits;
+        this.currentName = settings.name;
+        this.currentAddress = settings.address;
+        this.currentCompanyName = settings.companyName;
+        this.currentCity = settings.city;
+        this.currentEmail = settings.email;
+        this.currentPostalCode = settings.postalCode;
+        this.currentTelephone = settings.telephone;
+        this.currentProvince = settings.province;
+      }
     });
   }
 
@@ -60,8 +60,10 @@ export class SettingsPage {
 
       this.toastCtrl.create({
         message: 'Changes Saved.',
-        duration: 2500
-      }).present();
+        duration: 2000
+      }).present().then(() => {
+        this.closeModal();
+      });
     }
   }
   /**

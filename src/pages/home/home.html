@@ -10,12 +10,13 @@
     </ion-buttons>
     <ion-buttons right>
       <!--only show if the user has started a session and entered the client info-->
-      <button ion-button *ngIf="showDataForm" (click)="restart()">New PDF</button>
+      <button ion-button *ngIf="showDataForm" (click)="restart()">New Session</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
+  <p *ngIf="!pickedContact && !showDataForm" text-center style="font-size: 16px">Choose one of the options below to select a client and start snapping:</p>
   <!--prompt the user to choose/create a contact-->
   <ion-grid *ngIf="!pickedContact && !showDataForm">
     <ion-row>
