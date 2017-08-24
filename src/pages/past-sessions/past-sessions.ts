@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, ViewController, ModalController } from 'ionic-angular';
 import { Storage } from "@ionic/storage";
+
+import { SettingsPage } from "../settings/settings";
 
 @Component({
   selector: 'page-past-sessions',
@@ -9,8 +11,11 @@ import { Storage } from "@ionic/storage";
 export class PastSessionsPage {
   sessionsData: any[];
 
-  constructor(private storage: Storage, public navCtrl: NavController, private viewCtrl: ViewController, public navParams: NavParams) {
-    this.sessionsData = navParams.data;
+  constructor(private storage: Storage, public navCtrl: NavController, private modalCtrl: ModalController, private viewCtrl: ViewController) {
+    this.sessionsData = [];
+    storage.get('sessionsInProgress').then(sessionsData => {
+      this.sessionsData = sessionsData;
+    });
   }
   /**
    * open a previous session
@@ -25,9 +30,12 @@ export class PastSessionsPage {
    */
   deleteSession(session: any) {
     let index = this.getSessionIndexById(session.id);
+    let sessions = this.sessionsData;
     if (index != null) {
-      this.sessionsData.splice(index, 1);
-      this.storage.set('sessionsInProgress', this.sessionsData);
+      console.log(sessions);
+      sessions.splice(index, 1);
+      console.log(sessions);
+      this.storage.set('sessionsInProgress', sessions);
     }
   }
   /**
@@ -51,5 +59,11 @@ export class PastSessionsPage {
       }
     }
     return null;
+  }
+  /**
+   * open the settings page
+   */
+  openSettings() {
+    this.modalCtrl.create(SettingsPage).present();
   }
 }

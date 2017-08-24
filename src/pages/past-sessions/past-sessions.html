@@ -5,17 +5,25 @@
     <ion-buttons right>
       <button ion-button (click)="newSession()">New Session</button>
     </ion-buttons>
+    <ion-buttons left>
+      <button ion-button (click)="openSettings()"><ion-icon name="settings"></ion-icon></button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 
 <ion-content padding>
   <ion-list *ngIf="sessionsData.length != 0">
-    <button ion-item *ngFor="let session of sessionsData" (click)="openSession(session)">
-      <p>{{session.date}}</p>
-      <div *ngIf="session.client.companyName" style="font-size: 20px">{{session.client.companyName}}</div>
-      <div style="font-size: 17px">{{session.client.name}}</div>
-    </button>
+    <ion-item-sliding *ngFor="let session of sessionsData">
+      <ion-item text-wrap (click)="openSession(session)">
+        <p>{{session.date}}</p>
+        <div *ngIf="session.client.companyName" style="font-size: 20px">{{session.client.companyName}}</div>
+        <div style="font-size: 17px">{{session.client.name}}</div>
+      </ion-item>
+      <ion-item-options side="left">
+        <button ion-button (click)="deleteSession(session)"><ion-icon name="trash"></ion-icon>Delete</button>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
   <div *ngIf="sessionsData.length == 0">
     <h3>No previous sessions yet.</h3>

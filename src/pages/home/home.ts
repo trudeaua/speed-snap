@@ -39,6 +39,7 @@ export class HomePage {
   pickedContact: boolean;
   quantity: number;
   showDataForm: boolean;
+  showPageContent: boolean;
   signType: string;
   storedItems: any[];
   surveyType: string;
@@ -58,6 +59,7 @@ export class HomePage {
     public navCtrl: NavController,
     private camera: Camera) {
     this.notes = [];
+    this.showPageContent = false;
     this.storedItems = [];
     this.storage.keys().then(data => {
       console.log(data.toString());
@@ -68,78 +70,15 @@ export class HomePage {
         this.showWelcomeScreen();
       }
       else {
-        this.getPastSessions();
+        this.openPastSessionsPage();
       }
     }).catch(err => console.error(err));
 
     this.getUserSettings();
 
-    this.events.subscribe('loadPreviousSessions', (sessionData: any[]) => {
-      console.log(sessionData);
-      let modal = this.modalCtrl.create(PastSessionsPage, sessionData);
-      modal.present();
-      modal.onWillDismiss((session: any) => {
-        this.client = session.client.name ? session.client : this.client;
-        this.dataSharing.setItems(session.items);
-        this.storedItems = session.items;
-        this.counter = session.items.length;
-        this.uId = session.id;
-        if (session.client.name != null) {
-          this.pickedContact = true;
-          this.showDataForm = true;
-          this.toastCtrl.create({
-            message: 'Previous session restored.',
-            position: 'middle',
-            duration: 2000
-          }).present();
-        }
-        else {
-          this.pickedContact = false;
-          this.showDataForm = false;
-        }
-      });
-    });
-
     this.events.subscribe('updateCounter', count => {
       this.counter = count;
-    })
-    /*this.events.subscribe('loadPreviousSession', (sessionData: any) => {
-      let client;
-      sessionData.client.companyName ? client = sessionData.client.companyName : client = sessionData.client.name;
-      console.log(sessionData);
-      this.alertCtrl.create({
-        title: 'Previous session in progress',
-        subTitle: 'Load previous session?',
-        message: 'Session in progress for ' + client,
-        enableBackdropDismiss: false,
-        buttons: [
-          {
-            text: 'No',
-            role: 'cancel',
-            handler: () => {
-              this.storage.set('sessionInProgress', null);
-            }
-          },
-          {
-            text: 'Yes',
-            handler: () => {
-              dataSharing.setItems(sessionData.items);
-              this.counter = sessionData.items.length;
-              this.client = sessionData.client ? sessionData.client : this.client;
-              if (sessionData.client) {
-                this.pickedContact = true;
-                this.showDataForm = true;
-              }
-              this.toastCtrl.create({
-                message: 'Previous session restored.',
-                position: 'middle',
-                duration: 2000
-              }).present();
-            }
-          }
-        ]
-      }).present();
-    });*/
+    });
   }
   /**
    * present the welcome screen modal
@@ -150,19 +89,8 @@ export class HomePage {
     });
     modal.present();
     modal.onWillDismiss(() => {
-      this.getPastSessions();
+      this.openPastSessionsPage();
       this.getUserSettings();
-    });
-  }
-
-  getPastSessions() {
-    this.storage.get('sessionsInProgress').then((sessionData: any) => {
-      if (sessionData == null) {
-        this.events.publish('loadPreviousSessions', []);
-      }
-      else {
-        this.events.publish('loadPreviousSessions', sessionData);
-      }
     });
   }
   /**
@@ -465,13 +393,30 @@ export class HomePage {
     this.heightUnits = this.defaultUnits;
     this.widthUnits = this.defaultUnits;
   }
-  /**
-   * restart the form process to add another pdf
-   */
-  chooseSession() {
-    this.storage.get('sessionsInProgress').then(sessionData => {
-      this.resetValues();
-      this.events.publish('loadPreviousSessions', sessionData);
+
+  openPastSessionsPage() {
+    let modal = this.modalCtrl.create(PastSessionsPage);
+    modal.present();
+    modal.onWillDismiss((session: any) => {
+      this.showPageContent = true;
+      this.client = session.client.name ? session.client : this.client;
+      this.dataSharing.setItems(session.items);
+      this.storedItems = session.items;
+      this.counter = session.items.length;
+      this.uId = session.id;
+      if (session.client.name != null) {
+        this.pickedContact = true;
+        this.showDataForm = true;
+        this.toastCtrl.create({
+          message: 'Previous session restored.',
+          position: 'middle',
+          duration: 2000
+        }).present();
+      }
+      else {
+        this.pickedContact = false;
+        this.showDataForm = false;
+      }
     });
   }
 
