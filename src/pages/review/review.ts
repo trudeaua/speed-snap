@@ -165,20 +165,17 @@ export class ReviewPage {
                         this.toPdf('base64');
                         this.events.subscribe('base64:received', () => {
                             let date = new Date();
-                            this.emailComposer.isAvailable('gmail').then((val: boolean) => {
-                                    let email: EmailComposerOptions = {
-                                        app: val ? 'gmail' : 'mailto',
-                                        to: this.client.email,
-                                        attachments: ['base64:SiteSurvey_' + date.toDateString() + '.pdf//' + this.base64File],
-                                        subject: 'Site Survey',
-                                        body: "Here's the PDF of the site survey from today.",
-                                        isHtml: true
-                                    }
-                                setTimeout(() => {
-                                    this.emailComposer.addAlias('gmail', 'com.google.android.gm');
-                                    this.emailComposer.open(email).catch(err => console.log(err));
-                                }, 300);
-                            });
+                            let email: EmailComposerOptions = {
+                                app: 'mailto',
+                                to: this.client.email,
+                                attachments: ['base64:SiteSurvey_' + date.toDateString() + '.pdf//' + this.base64File],
+                                subject: 'Site Survey',
+                                body: "Here's the PDF of the site survey from today.",
+                                isHtml: true
+                            }
+                            setTimeout(() => {
+                                this.emailComposer.open(email).catch(err => console.log(err));
+                            }, 300);
                         });
                     }
                 },
