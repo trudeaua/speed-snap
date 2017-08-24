@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { ViewController } from 'ionic-angular';
 import { NgForm } from "@angular/forms/src/forms";
 import { Storage } from "@ionic/storage";
 
@@ -11,7 +11,7 @@ export class WelcomePage {
   provinces: any[];
   selectedProvince: string;
   defaultUnits: string;
-  constructor(private storage: Storage, private viewCtrl: ViewController, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(private storage: Storage, private viewCtrl: ViewController) {
     this.provinces = [{ abbrev: "AB", name: "Alberta" }, { abbrev: "BC", name: "British Columbia" }, { abbrev: "MB", name: "Manitoba" }, { abbrev: "NB", name: "New Brunswick" }, { abbrev: "NL", name: "Newfoundland & Labrador" }, { abbrev: "NT", name: "Northwest Territories" }, { abbrev: "NS", name: "Nova Scotia" }, { abbrev: "NU", name: "Nunavut" }, { abbrev: "ON", name: "Ontario" }, { abbrev: "PE", name: "Prince Edward Island" }, { abbrev: "QC", name: "Quebec" }, { abbrev: "SK", name: "Saskatchewan" }, { abbrev: "YT", name: "Yukon Territory" }];
   }
   /**
@@ -39,5 +39,4 @@ export class WelcomePage {
       console.log('submitted!');
     }
   }
-
 }

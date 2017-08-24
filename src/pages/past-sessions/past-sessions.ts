@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, ViewController, ModalController } from 'ionic-angular';
+import { ViewController, ModalController } from 'ionic-angular';
 import { Storage } from "@ionic/storage";
 
 import { SettingsPage } from "../settings/settings";
@@ -11,7 +11,7 @@ import { SettingsPage } from "../settings/settings";
 export class PastSessionsPage {
   sessionsData: any[];
 
-  constructor(private storage: Storage, public navCtrl: NavController, private modalCtrl: ModalController, private viewCtrl: ViewController) {
+  constructor(private storage: Storage, private modalCtrl: ModalController, private viewCtrl: ViewController) {
     this.sessionsData = [];
     storage.get('sessionsInProgress').then(sessionsData => {
       this.sessionsData = sessionsData;

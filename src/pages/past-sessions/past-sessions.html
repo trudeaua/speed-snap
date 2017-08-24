@@ -3,7 +3,7 @@
   <ion-navbar color="primary">
     <ion-title>Speed Snap</ion-title>
     <ion-buttons right>
-      <button ion-button (click)="newSession()">New Session</button>
+      <button ion-button (click)="newSession()">New Survey</button>
     </ion-buttons>
     <ion-buttons left>
       <button ion-button (click)="openSettings()"><ion-icon name="settings"></ion-icon></button>
@@ -26,8 +26,8 @@
     </ion-item-sliding>
   </ion-list>
   <div *ngIf="sessionsData.length == 0">
-    <h3>No previous sessions yet.</h3>
-    <p>Click 'New Session' to start a new session. When you start up the app again, you will be able to see your past sessions
+    <h3>No surveys yet.</h3>
+    <p>Click 'New Survey' to start a new survey session. When you start up the app again, you will be able to see your past surveys
       here.</p>
   </div>
 </ion-content>

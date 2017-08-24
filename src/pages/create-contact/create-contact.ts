@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, ViewController } from 'ionic-angular';
+import { ToastController, ViewController } from 'ionic-angular';
 import { Contacts, Contact, ContactField, ContactName, ContactAddress, ContactOrganization } from "@ionic-native/contacts";
 import { NgForm } from "@angular/forms/src/forms";
 
@@ -9,7 +9,7 @@ import { NgForm } from "@angular/forms/src/forms";
 })
 export class CreateContactPage {
   contact: Contact;
-  constructor(private toastCtrl: ToastController, private viewCtrl: ViewController, private contacts: Contacts, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(private toastCtrl: ToastController, private viewCtrl: ViewController, private contacts: Contacts, ) {
   }
   /**
    * close the create contact modal, and pass the newly created contact back to the home page
@@ -47,5 +47,4 @@ export class CreateContactPage {
       }).present();
     }
   }
-
 }

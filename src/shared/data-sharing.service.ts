@@ -111,7 +111,7 @@ export class DataSharingService {
             this.storage.set('sessionsInProgress', sessions).then(() => {
                 resolve();
             });
-        })
+        });
     }
     /**
      * find the index of a session by its id
@@ -136,5 +136,4 @@ export class DataSharingService {
         let d = new Date();
         return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
     }
-
 }

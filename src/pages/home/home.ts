@@ -281,7 +281,6 @@ export class HomePage {
       area: this.dataSharing.calcArea(item.height, item.width, item.heightUnits, item.widthUnits)
     }
     this.dataSharing.addItem(surveyItem);
-    //this.storedItems.push(surveyItem);
     this.storage.get('sessionsInProgress').then((sessionData: any) => {
       let index = this.dataSharing.getSessionIndexById(this.uId, sessionData);
       console.log(index);
@@ -393,7 +392,9 @@ export class HomePage {
     this.heightUnits = this.defaultUnits;
     this.widthUnits = this.defaultUnits;
   }
-
+  /**
+   * open the page with all previous sessions
+   */
   openPastSessionsPage() {
     let modal = this.modalCtrl.create(PastSessionsPage);
     modal.present();
@@ -419,7 +420,9 @@ export class HomePage {
       }
     });
   }
-
+  /**
+   * reset class properties and stored items
+   */
   resetValues() {
     this.addAnotherItem();
     this.storedItems = [];

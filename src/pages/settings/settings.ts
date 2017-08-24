@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, ToastController } from 'ionic-angular';
+import { ViewController, ToastController, ModalController } from 'ionic-angular';
 import { Storage } from "@ionic/storage";
 import { NgForm } from "@angular/forms/src/forms";
+import { HelpPage } from "../help/help";
 @Component({
   selector: 'page-settings',
   templateUrl: 'settings.html',
@@ -18,7 +19,7 @@ export class SettingsPage {
   currentName: string;
   defaultUnits: string;
   currentProvince: string;
-  constructor(private storage: Storage, private toastCtrl: ToastController, public navCtrl: NavController, public navParams: NavParams, private viewCtrl: ViewController) {
+  constructor(private storage: Storage, private toastCtrl: ToastController, private modalCtrl: ModalController, private viewCtrl: ViewController) {
     this.provinces = [{ abbrev: "AB", name: "Alberta" }, { abbrev: "BC", name: "British Columbia" }, { abbrev: "MB", name: "Manitoba" }, { abbrev: "NB", name: "New Brunswick" }, { abbrev: "NL", name: "Newfoundland & Labrador" }, { abbrev: "NT", name: "Northwest Territories" }, { abbrev: "NS", name: "Nova Scotia" }, { abbrev: "NU", name: "Nunavut" }, { abbrev: "ON", name: "Ontario" }, { abbrev: "PE", name: "Prince Edward Island" }, { abbrev: "QC", name: "Quebec" }, { abbrev: "SK", name: "Saskatchewan" }, { abbrev: "YT", name: "Yukon Territory" }];
     this.settings = {};
     //get current settings from storage
@@ -36,10 +37,6 @@ export class SettingsPage {
         this.currentProvince = settings.province;
       }
     });
-  }
-
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad SettingsPage');
   }
   /**
    * save the users settings to storage
@@ -73,5 +70,11 @@ export class SettingsPage {
   closeModal() {
     this.viewCtrl.dismiss().then(() => console.log('view dismissed')).catch(err => console.log(err));
   }
-
+  /**
+   * opens the help page
+   */
+  openHelp() {
+    let modal = this.modalCtrl.create(HelpPage);
+    modal.present();
+  }
 }

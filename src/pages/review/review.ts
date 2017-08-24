@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActionSheetController, Events, NavController, NavParams, AlertController, ToastController } from 'ionic-angular';
+import { ActionSheetController, Events, NavParams, AlertController, ToastController } from 'ionic-angular';
 import { DataSharingService } from "../../shared/data-sharing.service";
 import { EmailComposer, EmailComposerOptions } from "@ionic-native/email-composer";
 import { Storage } from "@ionic/storage";
@@ -35,7 +35,6 @@ export class ReviewPage {
         private dataSharing: DataSharingService,
         private emailComposer: EmailComposer,
         private events: Events,
-        public navCtrl: NavController,
         public navParams: NavParams,
         private storage: Storage,
         private toastCtrl: ToastController) {
