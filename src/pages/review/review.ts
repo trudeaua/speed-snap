@@ -28,6 +28,7 @@ export class ReviewPage {
     showEditForm: boolean;
     surveyItems: any[];
     surveyType: string;
+    uId: number;
     constructor(
         private actionSheetCtrl: ActionSheetController,
         private alertCtrl: AlertController,
@@ -44,6 +45,7 @@ export class ReviewPage {
         this.location = navParams.data.location;
         this.surveyType = navParams.data.surveyType;
         this.surveyItems = dataSharing.getItems();
+        this.uId = navParams.data.id;
         console.log(navParams.data);
         //get settings from storage
         storage.get('settings').then(settings => {
@@ -74,7 +76,6 @@ export class ReviewPage {
         if (this.surveyItems.length > 0) {
             this.enableExportBtn = true;
         }
-        this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems });
     }
     /**
      * delete a session item
@@ -101,7 +102,12 @@ export class ReviewPage {
         });
         alert.present();
         alert.onDidDismiss(() => {
-            this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems });
+            this.events.publish('updateCounter', this.surveyItems.length);
+            this.storage.get('sessionsInProgress').then(sessionData => {
+                let index = this.dataSharing.getSessionIndexById(this.uId, sessionData);
+                sessionData[index] = { client: this.client, items: this.surveyItems, id: this.uId, date: this.dataSharing.getCurrentDate() };
+                this.storage.set('sessionsInProgress', sessionData);
+            });
         });
     }
     /**
@@ -132,10 +138,14 @@ export class ReviewPage {
         this.surveyItems[this.editingIndex].widthUnits = this.newWidthUnits;
         this.surveyItems[this.editingIndex].heightUnits = this.newHeightUnits;
         this.surveyItems[this.editingIndex].area = this.dataSharing.calcArea(this.newHeight, this.newWidth, this.newHeightUnits, this.newWidthUnits);
-        this.storage.set('sessionInProgress', { client: this.client, items: this.surveyItems }).then(() => {
-            this.editingIndex = null;
-            this.showEditForm = false;
-        });
+        this.storage.get('sessionsInProgress').then(sessionData => {
+            let index = this.dataSharing.getItemIndexById(this.uId, sessionData);
+            sessionData[index] = { client: this.client, items: this.surveyItems, id: this.uId, date: this.dataSharing.getCurrentDate() };
+            this.storage.set('sessionsInProgress', sessionData).then(() => {
+                this.editingIndex = null;
+                this.showEditForm = false;
+            });
+        })
     }
 
     openShareOptions() {
@@ -156,16 +166,20 @@ export class ReviewPage {
                         this.toPdf('base64');
                         this.events.subscribe('base64:received', () => {
                             let date = new Date();
-                            let email: EmailComposerOptions = {
-                                to: this.client.email,
-                                attachments: ['base64:SiteSurvey_' + date.toDateString() + '.pdf//' + this.base64File],
-                                subject: 'Site Survey',
-                                body: "Here's the PDF of the site survey from today.",
-                                isHtml: true
-                            }
-                            setTimeout(() => {
-                                this.emailComposer.open(email).catch(err => console.log(err));
-                            }, 500);
+                            this.emailComposer.isAvailable('gmail').then((val: boolean) => {
+                                    let email: EmailComposerOptions = {
+                                        app: val ? 'gmail' : 'mailto',
+                                        to: this.client.email,
+                                        attachments: ['base64:SiteSurvey_' + date.toDateString() + '.pdf//' + this.base64File],
+                                        subject: 'Site Survey',
+                                        body: "Here's the PDF of the site survey from today.",
+                                        isHtml: true
+                                    }
+                                setTimeout(() => {
+                                    this.emailComposer.addAlias('gmail', 'com.google.android.gm');
+                                    this.emailComposer.open(email).catch(err => console.log(err));
+                                }, 300);
+                            });
                         });
                     }
                 },
@@ -222,7 +236,7 @@ export class ReviewPage {
         }
         this.client.telephone ? clientInfo += "<li>" + this.client.telephone + "</li>" : null;
         this.client.email ? clientInfo += "<li>" + this.client.email + "</li>" : null;
-        
+
         let d = date.toDateString().slice(date.toDateString().indexOf(' '));
         cordova.plugins.pdf.htmlToPDF({
             data: `<!DOCTYPE html>

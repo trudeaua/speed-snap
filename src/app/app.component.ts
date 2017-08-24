@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Platform, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { Storage } from "@ionic/storage";
+import { DataSharingService } from "../shared/data-sharing.service";
 
 import { HomePage } from '../pages/home/home';
 @Component({
@@ -11,19 +11,12 @@ import { HomePage } from '../pages/home/home';
 export class MyApp {
   rootPage: any = HomePage;
 
-  constructor(events: Events, platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, private storage: Storage) {
+  constructor(events: Events, dataSharing: DataSharingService, platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       splashScreen.hide();
-
-      this.storage.get('sessionInProgress').then((sessionData: any) => {
-        if (sessionData != null) {
-          console.log(sessionData);
-          events.publish('loadPreviousSession', sessionData);
-        }
-      });
     });
   }
 }

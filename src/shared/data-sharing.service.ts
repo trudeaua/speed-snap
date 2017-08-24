@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { Storage } from "@ionic/storage";
 @Injectable()
 export class DataSharingService {
     items: any[];
@@ -8,7 +9,9 @@ export class DataSharingService {
     postalCode: string;
     province: string;
     telephone: string;
-    constructor() {
+
+    counter: number;
+    constructor(private storage: Storage) {
         this.items = [];
     }
     /**
@@ -98,6 +101,40 @@ export class DataSharingService {
         else if ((heightUnits == 'in' && widthUnits == 'ft') || (widthUnits == 'in' && heightUnits == 'ft')) {
             return (height / 12 * width).toFixed(2) + ' sq ft.';
         }
+    }
+    /**
+     * set past and present sessions to storage
+     * @param sessions previous sessions
+     */
+    setSessionsToStorage(sessions: any) {
+        return new Promise(resolve => {
+            this.storage.set('sessionsInProgress', sessions).then(() => {
+                resolve();
+            });
+        })
+    }
+    /**
+     * find the index of a session by its id
+     * @param id id number of a session
+     * @param sessions array of sessions
+     */
+    getSessionIndexById(id: number, sessions: any[]) {
+        for (let i = 0; i < sessions.length; i++) {
+            if (sessions[i].id == id) {
+                return i;
+            }
+        }
+        return null;
+    }
+    /**
+     * get the current date
+     */
+    getCurrentDate() {
+        let months = ["January", "February", "March", "April", "May",
+            "June", "July", "August", "September", "October",
+            "November", "December"];
+        let d = new Date();
+        return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
     }
 
 }

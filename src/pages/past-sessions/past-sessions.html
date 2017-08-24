@@ -1,0 +1,25 @@
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>Speed Snap</ion-title>
+    <ion-buttons right>
+      <button ion-button (click)="newSession()">New Session</button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list *ngIf="sessionsData.length != 0">
+    <button ion-item *ngFor="let session of sessionsData" (click)="openSession(session)">
+      <p>{{session.date}}</p>
+      <div *ngIf="session.client.companyName" style="font-size: 20px">{{session.client.companyName}}</div>
+      <div style="font-size: 17px">{{session.client.name}}</div>
+    </button>
+  </ion-list>
+  <div *ngIf="sessionsData.length == 0">
+    <h3>No previous sessions yet.</h3>
+    <p>Click 'New Session' to start a new session. When you start up the app again, you will be able to see your past sessions
+      here.</p>
+  </div>
+</ion-content>

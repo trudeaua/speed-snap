@@ -10,7 +10,7 @@
     </ion-buttons>
     <ion-buttons right>
       <!--only show if the user has started a session and entered the client info-->
-      <button ion-button *ngIf="showDataForm" (click)="restart()">New Session</button>
+      <button ion-button (click)="chooseSession()">Open Session</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
@@ -71,7 +71,7 @@
             <ion-input type="number" name="heightInput" placeholder="Height" id="height-input-field" ngModel></ion-input>
           </ion-col>
           <ion-col col-9>
-            <ion-select style="max-width: 55% !important" [(ngModel)]="heightUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Height Units', subTitle: 'Select the height units'}">
+            <ion-select tabindex="-2" style="max-width: 55% !important" [(ngModel)]="heightUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Height Units', subTitle: 'Select the height units'}">
               <ion-option [selected]="heightUnits == 'm'" value="m">Metres (m)</ion-option>
               <ion-option [selected]="heightUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
               <ion-option [selected]="heightUnits == 'ft'" value="ft">Feet (ft)</ion-option>
@@ -84,7 +84,7 @@
             <ion-input type="number" name="widthInput" placeholder="Width" id="width-input-field" ngModel></ion-input>
           </ion-col>
           <ion-col col-9>
-            <ion-select style="max-width: 55% !important" [(ngModel)]="widthUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Width Units', subTitle: 'Select the width units'}">
+            <ion-select tabindex="-1" style="max-width: 55% !important" [(ngModel)]="widthUnits" [ngModelOptions]="{standalone: true}" [selectOptions]="{title: 'Width Units', subTitle: 'Select the width units'}">
               <ion-option [selected]="widthUnits == 'm'" value="m">Metres (m)</ion-option>
               <ion-option [selected]="widthUnits == 'cm'" value="cm">Centimetres (cm)</ion-option>
               <ion-option [selected]="widthUnits == 'ft'" value="ft">Feet (ft)</ion-option>

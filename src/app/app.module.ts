@@ -14,13 +14,14 @@ import { CreateContactPage } from '../pages/create-contact/create-contact';
 import { WelcomePage } from "../pages/welcome/welcome";
 import { SettingsPage } from "../pages/settings/settings";
 import { ReviewPage } from "../pages/review/review";
+import { PastSessionsPage } from "../pages/past-sessions/past-sessions";
 import { DataSharingService } from "../shared/data-sharing.service";
 
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage, WelcomePage, SettingsPage, ReviewPage, CreateContactPage
+    HomePage, WelcomePage, SettingsPage, ReviewPage, CreateContactPage, PastSessionsPage
   ],
   imports: [
     BrowserModule,
@@ -33,7 +34,7 @@ import { DataSharingService } from "../shared/data-sharing.service";
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp, CreateContactPage,
-    HomePage, WelcomePage, SettingsPage, ReviewPage
+    HomePage, WelcomePage, SettingsPage, ReviewPage, PastSessionsPage
   ],
   providers: [
     StatusBar, Contacts,

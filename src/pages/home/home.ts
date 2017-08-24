@@ -11,6 +11,7 @@ import { SurveyItem } from "../../models/survey-item.model";
 import { CreateContactPage } from "../create-contact/create-contact";
 import { SettingsPage } from "../settings/settings";
 import { WelcomePage } from "../welcome/welcome";
+import { PastSessionsPage } from "../past-sessions/past-sessions";
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -30,6 +31,7 @@ export class HomePage {
   firstName: string;
   height: number;
   image: string;
+  uId: number;
   counter: number = 0;
   location: string;
   name: string;
@@ -66,13 +68,42 @@ export class HomePage {
         this.showWelcomeScreen();
       }
       else {
-
+        this.getPastSessions();
       }
     }).catch(err => console.error(err));
 
     this.getUserSettings();
 
-    this.events.subscribe('loadPreviousSession', (sessionData: any) => {
+    this.events.subscribe('loadPreviousSessions', (sessionData: any[]) => {
+      console.log(sessionData);
+      let modal = this.modalCtrl.create(PastSessionsPage, sessionData);
+      modal.present();
+      modal.onWillDismiss((session: any) => {
+        this.client = session.client.name ? session.client : this.client;
+        this.dataSharing.setItems(session.items);
+        this.storedItems = session.items;
+        this.counter = session.items.length;
+        this.uId = session.id;
+        if (session.client.name != null) {
+          this.pickedContact = true;
+          this.showDataForm = true;
+          this.toastCtrl.create({
+            message: 'Previous session restored.',
+            position: 'middle',
+            duration: 2000
+          }).present();
+        }
+        else {
+          this.pickedContact = false;
+          this.showDataForm = false;
+        }
+      });
+    });
+
+    this.events.subscribe('updateCounter', count => {
+      this.counter = count;
+    })
+    /*this.events.subscribe('loadPreviousSession', (sessionData: any) => {
       let client;
       sessionData.client.companyName ? client = sessionData.client.companyName : client = sessionData.client.name;
       console.log(sessionData);
@@ -108,7 +139,7 @@ export class HomePage {
           }
         ]
       }).present();
-    });
+    });*/
   }
   /**
    * present the welcome screen modal
@@ -119,8 +150,20 @@ export class HomePage {
     });
     modal.present();
     modal.onWillDismiss(() => {
+      this.getPastSessions();
       this.getUserSettings();
-    })
+    });
+  }
+
+  getPastSessions() {
+    this.storage.get('sessionsInProgress').then((sessionData: any) => {
+      if (sessionData == null) {
+        this.events.publish('loadPreviousSessions', []);
+      }
+      else {
+        this.events.publish('loadPreviousSessions', sessionData);
+      }
+    });
   }
   /**
    * get user settings from storage
@@ -266,8 +309,21 @@ export class HomePage {
    * client info chosen, begin survey session
    */
   submitClient() {
-    this.storage.set('sessionInProgress', { client: this.client, items: [] });
-    this.showDataForm = true;
+    this.storage.get('sessionsInProgress').then((sessionData: any[]) => {
+      let sessions;
+      if (sessionData == null) {
+        sessions = [];
+      }
+      else {
+        sessions = sessionData;
+      }
+      console.log(sessionData);
+      let d = new Date();
+      this.uId = d.getTime()
+      sessions.push({ client: this.client, items: [], id: this.uId, date: this.dataSharing.getCurrentDate() });
+      this.storage.set('sessionsInProgress', sessions);
+      this.showDataForm = true;
+    });
   }
   /**
    * prepare an item to be exported to pdf
@@ -297,15 +353,25 @@ export class HomePage {
       area: this.dataSharing.calcArea(item.height, item.width, item.heightUnits, item.widthUnits)
     }
     this.dataSharing.addItem(surveyItem);
-    this.storedItems.push(surveyItem);
-    this.storage.set('sessionInProgress', { client: this.client, items: this.storedItems }).then(() => {
-      this.toastCtrl.create({
-        message: 'Added item to log.',
-        duration: 1500,
-        position: 'bottom'
-      }).present();
+    //this.storedItems.push(surveyItem);
+    this.storage.get('sessionsInProgress').then((sessionData: any) => {
+      let index = this.dataSharing.getSessionIndexById(this.uId, sessionData);
+      console.log(index);
+      if (index == null) {
+        sessionData.push({ client: this.client, items: this.storedItems, id: this.uId, date: this.dataSharing.getCurrentDate() });
+      }
+      else {
+        sessionData[index] = { client: this.client, items: this.storedItems, id: this.uId, date: this.dataSharing.getCurrentDate() };
+      }
+      this.storage.set('sessionsInProgress', sessionData).then(() => {
+        this.toastCtrl.create({
+          message: 'Added item to log.',
+          duration: 1500,
+          position: 'bottom'
+        }).present();
 
-      this.addAnotherItem();
+        this.addAnotherItem();
+      });
     });
   }
   /**
@@ -402,40 +468,16 @@ export class HomePage {
   /**
    * restart the form process to add another pdf
    */
-  restart() {
-    this.alertCtrl.create({
-      title: 'Start a new Sign Survey?',
-      subTitle: 'This will delete the current session',
-      buttons: [
-        {
-          text: 'No',
-          role: 'cancel'
-        },
-        {
-          text: 'Yes',
-          handler: () => {
-            this.storage.get('settings').then((settings: any) => {
-              this.storage.set('sessionInProgress', null).then(() => {
-                this.settings = settings;
-                if (settings) {
-                  this.defaultUnits = settings.defaultUnits;
-                  this.heightUnits = settings.defaultUnits;
-                  this.widthUnits = settings.defaultUnits;
-                  this.name = settings.name;
-                  this.dataSharing.setItems([]);
-                  this.addAnotherItem();
-                  this.counter = 0;
-                  this.storedItems = [];
-                  this.client = { name: null, companyName: null, address: null, telephone: null, email: null };
-                  this.pickedContact = false;
-                  this.showDataForm = false;
-                }
-              });
-            }).catch(err => console.error(err));
-          }
-        }
-      ]
-    }).present();
+  chooseSession() {
+    this.storage.get('sessionsInProgress').then(sessionData => {
+      this.resetValues();
+      this.events.publish('loadPreviousSessions', sessionData);
+    });
+  }
+
+  resetValues() {
+    this.addAnotherItem();
+    this.storedItems = [];
   }
   /**
    * open the settings page
@@ -447,7 +489,7 @@ export class HomePage {
    * navigate to the review page
    */
   goToReviewPage() {
-    let params = { location: this.location, client: this.client, surveyType: this.surveyType, name: this.name };
+    let params = { location: this.location, client: this.client, surveyType: this.surveyType, name: this.name, id: this.uId };
     this.navCtrl.push(ReviewPage, params);
   }
 }
